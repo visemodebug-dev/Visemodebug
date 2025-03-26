@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using VisemoServices.Services;
+using VisemoServices.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +10,18 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+ServerVersion serverVersion = ServerVersion.AutoDetect(connectionString);
+
+builder.Services.AddDbContext<DatabaseContext>(options =>
+{
+    options.UseMySql(connectionString, serverVersion);
+});
+
+//Enable Dependency Injection
+builder.Services.AddScoped<IUserServices, UserServices>();
 
 var app = builder.Build();
 
