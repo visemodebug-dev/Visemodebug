@@ -1,0 +1,6 @@
+@VisemoAlgorithm_HostAddress = http://localhost:5215
+
+GET {{VisemoAlgorithm_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
