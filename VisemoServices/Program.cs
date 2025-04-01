@@ -2,22 +2,40 @@ using Microsoft.EntityFrameworkCore;
 using VisemoServices.Services;
 using VisemoServices.Data;
 using Microsoft.OpenApi.Models;
+using VisemoServices.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 // CORS enabler
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+        policy => policy
+            .AllowAnyOrigin()  // Allow requests from anywhere
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+    );
 });
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Visemo API",
+        Version = "v1"
+    });
+
+    c.OperationFilter<SwaggerFileOperationFilter>();
+
+    // Enable support for form-data file uploads
+    c.MapType<IFormFile>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 

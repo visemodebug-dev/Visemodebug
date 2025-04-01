@@ -12,91 +12,10 @@ namespace VisemoServices.Services
     {
         private readonly InferenceSession _session;
 
-        //public EmotionServices()
-        //{
-        //    // Load the ONNX model once
-        //    string modelPath = "VisemoServices/Model/emotion.onnx"; // Adjust path if needed
-        //    _session = new InferenceSession(modelPath);
-        //}
-
-        // Predict the emotion from the input data
-        // For frontend integration
-        //public async Task<float[]> Predict(float[] inputData)
-        //{
-        //    return await Task.Run(() =>
-        //    {
-        //        if (inputData == null || inputData.Length == 0)
-        //            throw new ArgumentException("Invalid input data.");
-
-        //        var inputTensor = new DenseTensor<float>(inputData, new int[] { 1, inputData.Length });
-        //        var inputs = new List<NamedOnnxValue>
-        //        {
-        //            NamedOnnxValue.CreateFromTensor("resnet50_input", inputTensor)
-        //        };
-
-        //        using var results = _session.Run(inputs);
-        //        return results.First().AsEnumerable<float>().ToArray();
-        //    });
-        //}
-
-        //// Dispose the session when done
-        //public void Dispose()
-        //{
-        //    _session.Dispose();
-        //}
-        ////////////////////////////////////////////////////////////////////////////
-        //public async Task<float[]> PredictImageAsync(IFormFile imageFile)
-        //{
-        //    if (imageFile == null || imageFile.Length == 0)
-        //        throw new ArgumentException("Invalid image file.");
-
-        //    using var stream = new MemoryStream();
-        //    await imageFile.CopyToAsync(stream);
-        //    byte[] imageBytes = stream.ToArray();
-
-        //    // Process the image into a tensor
-        //    var inputTensor = ProcessImage(imageBytes);
-
-        //    var inputs = new List<NamedOnnxValue>
-        //    {
-        //        NamedOnnxValue.CreateFromTensor("resnet50_input", inputTensor)
-        //    };
-
-        //    // Run inference
-        //    using var results = _session.Run(inputs);
-        //    return results.First().AsEnumerable<float>().ToArray();
-        //}
-
-        //private DenseTensor<float> ProcessImage(byte[] imageBytes)
-        //{
-        //    using var image = SixLabors.ImageSharp.Image.Load<Rgb24>(imageBytes);
-        //    image.Mutate(x => x.Resize(640, 640));  // Adjust to YOLO model input size
-
-        //    float[] imageData = new float[640 * 640 * 3];
-        //    int index = 0;
-
-        //    for (int y = 0; y < 640; y++)
-        //    {
-        //        for (int x = 0; x < 640; x++)
-        //        {
-        //            var pixel = image[x, y];
-        //            imageData[index++] = pixel.R / 255.0f; // Normalize to [0,1]
-        //            imageData[index++] = pixel.G / 255.0f;
-        //            imageData[index++] = pixel.B / 255.0f;
-        //        }
-        //    }
-
-        //    return new DenseTensor<float>(imageData, new int[] { 1, 3, 640, 640 });
-        //}
-
-        //public void Dispose()
-        //{
-        //    _session.Dispose();
-        //}
-
         public EmotionServices()
         {
-            string modelPath = Path.Combine(AppContext.BaseDirectory, "Model", "VisemoEmotionDetection.onnx");
+            // Get the expected path of the ONNX file
+            string modelPath = Path.Combine(Directory.GetCurrentDirectory(), "Model", "emotion.onnx");
             _session = new InferenceSession(modelPath);
         }
 
@@ -105,14 +24,20 @@ namespace VisemoServices.Services
             return await Task.Run(() =>
             {
                 using var image = SixLabors.ImageSharp.Image.Load<Rgb24>(imageBytes);
-                image.Mutate(x => x.Resize(640, 640)); // Resize to match YOLOv8 input
 
+                // Resize to 224x224 to match the model's expected input size
+                image.Mutate(x => x.Resize(224, 224));
+
+                // Convert image to tensor
                 var inputTensor = ConvertImageToTensor(image);
-                var inputs = new List<NamedOnnxValue>
-            {
-                NamedOnnxValue.CreateFromTensor("resnet50_input", inputTensor) // Ensure this matches ONNX input name
-            };
 
+                // Create input for the model with the correct tensor format (batch_size, height, width, channels)
+                var inputs = new List<NamedOnnxValue>
+        {
+            NamedOnnxValue.CreateFromTensor("resnet50_input", inputTensor)
+        };
+
+                // Run the inference session
                 using var results = _session.Run(inputs);
                 var outputTensor = results.First().AsTensor<float>().ToArray();
 
@@ -122,29 +47,55 @@ namespace VisemoServices.Services
 
         private DenseTensor<float> ConvertImageToTensor(Image<Rgb24> image)
         {
-            float[] imageData = new float[3 * 640 * 640]; // YOLOv8 expects (1,3,640,640)
+            // Resize image to 224x224
+            image.Mutate(x => x.Resize(224, 224));
+
+            // Allocate an array for the image data
+            float[] imageData = new float[224 * 224 * 3]; // ResNet expects (224, 224, 3) format
             int index = 0;
 
-            for (int y = 0; y < 640; y++)
+            // Loop over the image pixels and populate the tensor
+            for (int y = 0; y < 224; y++)
             {
-                for (int x = 0; x < 640; x++)
+                for (int x = 0; x < 224; x++)
                 {
-                    Rgb24 pixel = image[x, y];
-                    imageData[index++] = pixel.R / 255.0f;
-                    imageData[index++] = pixel.G / 255.0f;
-                    imageData[index++] = pixel.B / 255.0f;
+                    // Ensure we're not out of bounds
+                    if (x < image.Width && y < image.Height)
+                    {
+                        Rgb24 pixel = image[x, y]; // Access pixel at (x, y)
+                        imageData[index++] = pixel.R / 255.0f; // Normalize to 0-1 range
+                        imageData[index++] = pixel.G / 255.0f;
+                        imageData[index++] = pixel.B / 255.0f;
+                    }
                 }
             }
 
-            return new DenseTensor<float>(imageData, new[] { 1, 3, 640, 640 });
+            // Return the tensor with dimensions [1, 224, 224, 3] (batch_size, height, width, channels)
+            return new DenseTensor<float>(imageData, new[] { 1, 224, 224, 3 });
         }
 
         private string ProcessModelOutput(float[] output)
         {
-            string[] emotions = { "happy", "sad", "angry", "surprise", "fear", "disgust", "neutral" }; // Adjust based on model labels
-            int maxIndex = output.ToList().IndexOf(output.Max());
+            // Print full output for debugging
+            Console.WriteLine($"Full model output: {string.Join(", ", output)}");
 
-            return emotions[maxIndex]; // Return the emotion with highest confidence
+            // List of emotions corresponding to the model output
+            string[] emotions = { "angry", "disgusted", "fearful", "happy", "neutral", "sad", "surprised" };
+
+            // Apply softmax to all output values to get probabilities
+            float maxVal = output.Max();
+            float[] expValues = output.Select(v => MathF.Exp(v - maxVal)).ToArray();  // Subtract max for numerical stability
+            float sumExp = expValues.Sum();
+            float[] probabilities = expValues.Select(v => v / sumExp).ToArray();
+
+            // Debugging: Print normalized probabilities
+            Console.WriteLine($"Normalized probabilities: {string.Join(", ", probabilities)}");
+
+            // Find the index of the highest probability
+            int maxIndex = Array.IndexOf(probabilities, probabilities.Max());
+
+            // Return the emotion with the highest probability
+            return emotions[maxIndex];
         }
 
         public void Dispose()

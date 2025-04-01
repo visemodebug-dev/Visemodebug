@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VisemoServices.Services;
 using System.Threading.Tasks;
+using VisemoServices.Model;
 
 
 namespace VisemoServices.Controllers
@@ -34,19 +35,20 @@ namespace VisemoServices.Controllers
         //}
 
         [HttpPost("detect")]
-        public async Task<IActionResult> DetectEmotion([FromForm] IFormFile image)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> DetectEmotion([FromForm] ImageUploadRequest request)
         {
-            if (image == null || image.Length == 0)
+            if (request.Image == null || request.Image.Length == 0)
             {
-                return BadRequest("No image uploaded.");
+                return BadRequest("No file uploaded.");
             }
 
             using var memoryStream = new MemoryStream();
-            await image.CopyToAsync(memoryStream);
+            await request.Image.CopyToAsync(memoryStream);
             byte[] imageBytes = memoryStream.ToArray();
 
-            string emotion = await _emotionServices.DetectEmotionAsync(imageBytes);
-            return Ok(new { emotion });
+            string result = await _emotionServices.DetectEmotionAsync(imageBytes);
+            return Ok(result);
         }
     }
 }
