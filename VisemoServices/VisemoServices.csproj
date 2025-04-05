@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AI Files\" />
+    <Folder Include="AI Files\FastAPI Endpoint\" />
   </ItemGroup>
 
 
