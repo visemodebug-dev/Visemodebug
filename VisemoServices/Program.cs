@@ -49,7 +49,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 //Enable Dependency Injection
 builder.Services.AddScoped<IUserServices, UserServices>();
 // Register IOnnxService as a Singleton
-builder.Services.AddSingleton<IEmotionServices, EmotionServices>();
+builder.Services.AddHttpClient<IEmotionServices, EmotionServices>();
 
 var app = builder.Build();
 
