@@ -19,6 +19,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+// For swagger testing
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -37,6 +38,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Database connection setup
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 ServerVersion serverVersion = ServerVersion.AutoDetect(connectionString);
@@ -48,7 +50,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 
 //Enable Dependency Injection
 builder.Services.AddScoped<IUserServices, UserServices>();
-// Register IOnnxService as a Singleton
+// Register EmotionServices as http
 builder.Services.AddHttpClient<IEmotionServices, EmotionServices>();
 
 var app = builder.Build();
