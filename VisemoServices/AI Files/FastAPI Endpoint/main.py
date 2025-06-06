@@ -41,4 +41,5 @@ async def predict(file: UploadFile = File(...)):
     else:
         return JSONResponse(content={ "emotion": "unknown", "confidence": 0 })
 # To run this
+# pip install fastapi uvicorn torch torchvision ultralytics
 # python -m uvicorn main:app --host 0.0.0.0 --port 8000
