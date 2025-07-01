@@ -9,6 +9,14 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//ReferenceHandler.IgnoreCycles 30 mins wasted because i did not read -chakayl
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
+
 //  JWT Configuration
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
