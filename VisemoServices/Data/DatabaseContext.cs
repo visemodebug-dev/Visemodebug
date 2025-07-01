@@ -7,7 +7,6 @@ namespace VisemoServices.Data
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-
         }
 
         public DbSet<User> Users { get; set; }
@@ -16,13 +15,37 @@ namespace VisemoServices.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure User entity using Fluent API
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.Id);
+
                 entity.HasIndex(u => u.Email).IsUnique();
-                entity.Property(u => u.Email).IsRequired().HasMaxLength(255);
-                entity.Property(u => u.Password).IsRequired();
+                entity.Property(u => u.Email)
+                      .IsRequired()
+                      .HasMaxLength(255);
+
+                entity.Property(u => u.Password)
+                      .IsRequired();
+
+                entity.Property(u => u.firstName)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(u => u.lastName)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(u => u.middleInitial)
+                      .IsRequired()
+                      .HasMaxLength(1);
+
+                entity.Property(u => u.idNumber)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(u => u.idImage)
+                      .IsRequired()
+                      .HasMaxLength(255); // Stores filename or path
             });
         }
     }
