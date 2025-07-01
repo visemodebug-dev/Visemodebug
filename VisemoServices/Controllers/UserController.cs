@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VisemoServices.Model;
 using VisemoServices.Services;
+using VisemoServices.Dtos.User; // Import your DTO namespace
 
 namespace VisemoServices.Controllers
 {
@@ -8,38 +9,40 @@ namespace VisemoServices.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-
         private readonly IUserServices _userServices;
+        private readonly IWebHostEnvironment _env;
 
-        public UserController(IUserServices userServices)
+        public UserController(IUserServices userServices, IWebHostEnvironment env)
         {
             _userServices = userServices;
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] User user)
-        {
-            var loggedInUser = await _userServices.Login(user.Email, user.Password);
-            if (loggedInUser == null)
-            {
-                return Unauthorized("Invalid email or password");
-            }
-
-            return Ok(loggedInUser);
+            _env = env;
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp([FromBody] User user)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> SignUp([FromForm] UserSignupDto userDto)
         {
             try
             {
-                var newUser = await _userServices.SignUp(user.Email, user.Password);
+                var newUser = await _userServices.SignUp(userDto, userDto.IdImage, _env);
                 return Ok(newUser);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto login)
+        {
+            var loggedInUser = await _userServices.Login(login.Email, login.Password);
+            if (loggedInUser == null)
+            {
+                return Unauthorized("Invalid email or password");
+            }
+
+            return Ok(loggedInUser);
         }
 
         [HttpGet("CheckUser")]

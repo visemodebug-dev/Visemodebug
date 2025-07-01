@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using VisemoServices.Data;
+using VisemoServices.Dtos.User;
 using VisemoServices.Model;
 
 namespace VisemoServices.Services
@@ -16,41 +18,60 @@ namespace VisemoServices.Services
         public async Task<User?> Login(string email, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
-                return null; // Invalid login
+                return null;
             }
-
-            return user; // Successful login
+            return user;
         }
 
-        public async Task<User> SignUp(string email, string password)
+        public async Task<User?> CheckUser(string email)
         {
-            // Check if user already exists
-            if (await _context.Users.AnyAsync(u => u.Email == email))
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<User> SignUp(UserSignupDto dto, IFormFile idImage, IWebHostEnvironment env)
+        {
+            // Check for existing user
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
             {
                 throw new Exception("User already exists");
             }
 
-            // Hash password before saving
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+            // Upload image
+            if (idImage == null || idImage.Length == 0)
+            {
+                throw new ArgumentException("ID image is required.");
+            }
+
+            var uploadsFolder = Path.Combine(env.WebRootPath ?? "wwwroot", "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}_{idImage.FileName}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await idImage.CopyToAsync(stream);
+            }
+
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
             var newUser = new User
             {
-                Email = email,
-                Password = hashedPassword
+                Email = dto.Email,
+                Password = hashedPassword,
+                firstName = dto.FirstName,
+                lastName = dto.LastName,
+                middleInitial = dto.MiddleInitial,
+                idNumber = dto.IdNumber,
+                idImage = Path.Combine("uploads", fileName)
             };
 
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
             return newUser;
-        }
-
-        public async Task<User?> CheckUser(string email)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }
