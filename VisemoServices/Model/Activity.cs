@@ -9,7 +9,6 @@
 
         // Optional: Link to a Classroom
         public int ClassroomId { get; set; }
-        public Classroom Classroom { get; set; }
     }
 
 }
