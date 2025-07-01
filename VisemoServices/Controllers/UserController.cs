@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VisemoServices.Model;
 using VisemoServices.Services;
-using VisemoServices.Dtos.User; // Import your DTO namespace
+using VisemoServices.Dtos.User;
 
 namespace VisemoServices.Controllers
 {
@@ -11,10 +11,12 @@ namespace VisemoServices.Controllers
     {
         private readonly IUserServices _userServices;
         private readonly IWebHostEnvironment _env;
+        private readonly IAuthTokenService _authTokenService;
 
-        public UserController(IUserServices userServices, IWebHostEnvironment env)
+        public UserController(IUserServices userServices, IAuthTokenService authTokenService, IWebHostEnvironment env)
         {
             _userServices = userServices;
+            _authTokenService = authTokenService;
             _env = env;
         }
 
@@ -42,8 +44,25 @@ namespace VisemoServices.Controllers
                 return Unauthorized("Invalid email or password");
             }
 
-            return Ok(loggedInUser);
+            var token = _authTokenService.GenerateToken(loggedInUser);
+
+            return Ok(new
+            {
+                token,
+                user = new
+                {
+                    loggedInUser.Id,
+                    loggedInUser.Email,
+                    loggedInUser.firstName,
+                    loggedInUser.lastName,
+                    loggedInUser.middleInitial,
+                    loggedInUser.idNumber,
+                    loggedInUser.idImage
+                }
+            });
         }
+
+
 
         [HttpGet("CheckUser")]
         public async Task<IActionResult> CheckUser([FromQuery] string email)

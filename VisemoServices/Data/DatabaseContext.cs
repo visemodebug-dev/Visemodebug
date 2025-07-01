@@ -10,6 +10,7 @@ namespace VisemoServices.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Classroom> Classrooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
