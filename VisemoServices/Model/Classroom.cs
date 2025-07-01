@@ -11,6 +11,8 @@ namespace VisemoServices.Model
         public int Id { get; set; }
         public string? className { get; set; }
 
+        // Navigation property
+        public ICollection<Activity> Activities { get; set; }
         public List<User> Users { get; set; }
     }
 }

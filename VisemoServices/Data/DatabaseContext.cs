@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VisemoServices.Model;
 
+
 namespace VisemoServices.Data
 {
     public class DatabaseContext : DbContext
@@ -11,6 +12,7 @@ namespace VisemoServices.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Classroom> Classrooms { get; set; }
+        public DbSet<Activity> Activities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

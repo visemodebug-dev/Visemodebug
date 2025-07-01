@@ -103,6 +103,8 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddHttpClient<IEmotionServices, EmotionServices>();
 builder.Services.AddScoped<IAuthTokenService, AuthTokenService>();
+builder.Services.AddScoped<IClassroomService, ClassroomService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 
 //  Build the app
 var app = builder.Build();
