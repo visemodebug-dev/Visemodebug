@@ -7,69 +7,67 @@ import axios from "axios";
 //  * @returns A promise that resolves with the server's response.
 //  */
 
+const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:5001/api/user";
 
+axios.defaults.timeout = 10000;
+
+// Sign Up
 export const submitAuthForm = async (formData: FormData) => {
     try {
-        const response = await axios.post("", formData, {
+        const response = await axios.post(`${BASE_URL}/signup`, formData, {
             headers: {
                 'Content-Type' : 'multipart/form-data'
             }
         });
-
-        if (response.status === 200) {
-            console.log("Form submitted successfully");
-        } else {
-            console.log ("Form submitted failed");
-        }
-    } catch (error) {
+        
+        return response.data;
+    } catch (error: any) {
         console.error("Error submitting form:", error);
+        throw new Error(error.response?.data?.message || "Signup failed.");
     }
-}
+};
 
-
+// Login
 export const login = async (email: string, password: string) => {
     try {
-        const response = await axios.post("/login", {email,password});
+        const response = await axios.post(`${BASE_URL}/login`, {email,password}, {
+            headers: {"Content-Type" : "application/json"}
+        });
 
         if (response.status === 200) {
-            console.log("Login Successful");
+            localStorage.setItem("token", response.data.token);
+            return response.data;
         } else {
-            console.log("Login Failed");
+            throw new Error("Login Failed");
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error logging in:",error)
+        throw new Error(error.response?.data?.message || "Login failed.");
     }
 };
 
+// Forgot Password
 export const forgotPassword = async (email: string, idNumber: string) => {
     try {
-        const response = await axios.post("/forgot-password", {email, idNumber});
+        const response = await axios.post(`${BASE_URL}/forgot-password`, {email, idNumber}, {
+            headers: {"Content-Type" : "application/json"},
+        });
 
-        if (response.status === 200) {
-            return {
-                success: true,
-                message: "Password reset link sent to your email.",
-            };
-        } else {
-            return {
-                success: false,
-                message: "Failed to send password reset link. Please try again."
-            }
-        }
-    } catch (error) {
+        return response.data;
+    } catch (error: any) {
         console.error("Error sending password reset link", error);
-        return {
-            success: false,
-            message: "An error occured. Please try again.",
-        };
+        throw new Error (error.response?.data?.message || "Failed to send reset link.")
     }
 };
 
+// Reset Password
 export const resetPassword = async (password: string, token: string) => {
     try {
-      const response = await axios.post(`/reset-password`, {
+      const response = await axios.post(`${BASE_URL}/reset-password`, {
         password,
         token, // Backend needs this token to verify identity
+      },{
+        headers: {"Content-Type": "application/json"},
       });
   
       return response.data;
