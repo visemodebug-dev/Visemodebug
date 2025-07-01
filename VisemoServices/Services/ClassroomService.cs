@@ -97,5 +97,21 @@ namespace VisemoServices.Services
                 u.idNumber
             });
         }
+        public async Task<(bool Success, string Message)> RemoveUserFromClassroomAsync(int classroomId, int userId)
+        {
+            var classroom = await _context.Classrooms
+                                          .Include(c => c.Users)
+                                          .FirstOrDefaultAsync(c => c.Id == classroomId);
+
+            if (classroom == null) return (false, "Classroom not found");
+
+            var user = classroom.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null) return (false, "User not found in this classroom");
+
+            classroom.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return (true, "User removed from classroom successfully");
+        }
     }
 }

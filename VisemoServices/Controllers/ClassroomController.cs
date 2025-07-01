@@ -69,5 +69,13 @@ namespace VisemoServices.Controllers
             await _classroomService.DeleteClassroomAsync(id);
             return NoContent();
         }
+        // Remove user from classroom
+        [HttpDelete("{classroomId}/RemoveUser/{userId}")]
+        public async Task<IActionResult> RemoveUserFromClassroom(int classroomId, int userId)
+        {
+            var result = await _classroomService.RemoveUserFromClassroomAsync(classroomId, userId);
+            if (!result.Success) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
+        }
     }
 }
