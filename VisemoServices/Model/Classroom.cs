@@ -12,7 +12,7 @@ namespace VisemoServices.Model
         public string? className { get; set; }
 
         // Navigation property
-        public ICollection<Activity> Activities { get; set; }
-        public List<User> Users { get; set; }
+        public List<User> Users { get; set; } = new List<User>();
+        public List<Activity> Activities { get; set; } = new List<Activity>();
     }
 }

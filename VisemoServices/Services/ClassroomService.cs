@@ -62,5 +62,40 @@ namespace VisemoServices.Services
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<(bool Success, string Message)> AddUserToClassroomAsync(int classroomId, int userId)
+        {
+            var classroom = await _context.Classrooms.Include(c => c.Users)
+                                                      .FirstOrDefaultAsync(c => c.Id == classroomId);
+            if (classroom == null) return (false, "Classroom not found");
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return (false, "User not found");
+
+            if (classroom.Users.Any(u => u.Id == userId))
+                return (false, "User already in classroom");
+
+            classroom.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return (true, "User added to classroom successfully");
+        }
+
+        public async Task<IEnumerable<object>?> GetUsersInClassroomAsync(int classroomId)
+        {
+            var classroom = await _context.Classrooms
+                                          .Include(c => c.Users)
+                                          .FirstOrDefaultAsync(c => c.Id == classroomId);
+
+            if (classroom == null) return null;
+
+            return classroom.Users.Select(u => new
+            {
+                u.Id,
+                u.Email,
+                u.firstName,
+                u.lastName,
+                u.idNumber
+            });
+        }
     }
 }

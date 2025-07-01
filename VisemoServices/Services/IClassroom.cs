@@ -9,5 +9,7 @@ namespace VisemoServices.Services
         Task<Classroom> GetClassroomByIdAsync(int id);
         Task<Classroom> UpdateClassroomAsync(int id, string newName);
         Task DeleteClassroomAsync(int id);
+        Task<(bool Success, string Message)> AddUserToClassroomAsync(int classroomId, int userId);
+        Task<IEnumerable<object>?> GetUsersInClassroomAsync(int classroomId);
     }
 }

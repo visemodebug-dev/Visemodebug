@@ -26,6 +26,8 @@ namespace VisemoServices.Model
 
         [Required, MaxLength(255)]
         public string? idImage { get; set; }
+
+        public List<Classroom> Classrooms { get; set; } = new List<Classroom>();
     }
 
 }
