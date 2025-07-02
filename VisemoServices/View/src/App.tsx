@@ -11,16 +11,30 @@ import AdminLogin from './components/loginauth/AdminLogin';
 import AdminSignUp from './components/loginauth/AdminSignup';
 import ForgotPassword from './components/loginauth/ForgotPassword';
 import SetNewPassword from './components/loginauth/SetNewPassword';
+import ActivityPage from './components/dashboards/student_dash/ActivitiesPage/ActivityPage';
+import ClassDetails from './components/dashboards/student_dash/ClassDetails';
+import ClassList from './components/dashboards/student_dash/ClassList';
+import StudentLandingPage from './components/dashboards/student_dash/StudentLandingPage';
+import TeacherLandingPage from './components/dashboards/teacher_dash/TeacherLandingPage';
 
 function App() {
   return (
     <Router>
       <Routes>
+         {/* Landing Page */}
         <Route path="/" element={<VisemoLanding />} />
+
+
         <Route path='/loginauth/teacher/login' element={<TeacherLogin/>}/>
         <Route path='/loginauth/teacher/signup' element={<TeacherSignUp/>} /> 
+
         <Route path='/loginauth/student/login' element={<StudentLogin/>}/>
         <Route path='/loginauth/student/signup' element={<StudentSignUp/>} />
+
+        {/* Redirect wildcard student auth routes to login */}
+        <Route path="/loginauth/student" element={<Navigate to="/loginauth/student/login" replace />} />
+        <Route path="/loginauth/student/*" element={<Navigate to="/loginauth/student/login" replace />} />
+
         <Route path='/loginauth/admin/login' element={<AdminLogin/>}/>
         <Route path='/loginauth/admin/signup' element={<AdminSignUp/>}/>
         <Route path='/loginauth/student/*' element={<Navigate to="/loginauth/student/login" />} />
@@ -28,6 +42,18 @@ function App() {
         <Route path='/loginauth/admin/*' element={<Navigate to="/loginauth/admin/login" />} />
         <Route path='/forgot-password' element={<ForgotPassword/>}/>
         <Route path='/set-new-password' element={<SetNewPassword/>}/>
+
+        {/*Teacher Dashboard */}
+        <Route path="/teacher-dashboard" element={<TeacherLandingPage />}>
+          </Route>
+
+        {/* Student Dashboard */}
+        <Route path="/student-dashboard" element={<StudentLandingPage />}>
+          <Route index element={<ClassList />} />
+          <Route path="class/:id" element={<ClassDetails />} />
+          <Route path="/student-dashboard/activity/:activityId" element={<ActivityPage />} />
+        </Route>
+        
       </Routes>
     </Router>
   );
