@@ -7,7 +7,7 @@
         public TimeSpan Timer { get; set; }  // Duration of the activity
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Optional: Link to a Classroom
+        // Foreign key to Classroom
         public int ClassroomId { get; set; }
     }
 

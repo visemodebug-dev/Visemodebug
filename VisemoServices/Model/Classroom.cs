@@ -11,7 +11,7 @@ namespace VisemoServices.Model
         public int Id { get; set; }
         public string? className { get; set; }
 
-        // Navigation property
+        // Foreign key to User and Activity
         public List<User> Users { get; set; } = new List<User>();
         public List<Activity> Activities { get; set; } = new List<Activity>();
     }
