@@ -7,7 +7,8 @@ import axios from "axios";
 //  * @returns A promise that resolves with the server's response.
 //  */
 
-const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:5001/api/user";
+const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/User";
+
 
 axios.defaults.timeout = 10000;
 

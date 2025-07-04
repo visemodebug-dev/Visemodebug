@@ -126,10 +126,23 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
     } else if (type === "login") {
       if (!errors.password) {
         console.log(`${type} form submitted for ${role}:`, formData);
-        await login(formData.email, formData.password); // Use the login service function
-      } else {
-        console.log("Please fix the errors before submitting.");
+        try {
+          const res = await login(formData.email, formData.password);
+          console.log("Login successful:", res);
+
+        
+          if (role === "Student") {
+          navigate("/student-dashboard");
+        } else if (role === "Teacher") {
+          navigate("/teacher-dashboard");
+        } else if (role === "Admin") {
+          navigate("/admin-dashboard");
+        }  // Use the login service function
+      } catch (error) {
+        console.log("Login failed:", error);
+        alert("Login failed. Please check your credentials.");
       }
+    }
     }
   };
 

@@ -6,7 +6,7 @@ namespace VisemoServices.Model
     {
         public int Id { get; set; }
 
-        [Required, MaxLength(255)]
+        [Required, MaxLength(255)]  
         public string? Email { get; set; }
 
         [Required]
@@ -26,6 +26,9 @@ namespace VisemoServices.Model
 
         [Required, MaxLength(255)]
         public string? idImage { get; set; }
+
+        //Foreign key to Classroom
+        public List<Classroom> Classrooms { get; set; } = new List<Classroom>();
     }
 
 }

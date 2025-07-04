@@ -1,0 +1,81 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using VisemoServices.Dtos.Classroom;
+using VisemoServices.Services;
+
+namespace VisemoServices.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ClassroomController : ControllerBase
+    {
+        private readonly IClassroomService _classroomService;
+
+        public ClassroomController(IClassroomService classroomService)
+        {
+            _classroomService = classroomService;
+        }
+        // Create Classroom
+        [HttpPost("CreateClassroom")]
+        public async Task<IActionResult> Create([FromBody] CreateClassroomDto dto)
+        {
+            var classroom = await _classroomService.CreateClassroomAsync(dto.Name);
+            return Ok(classroom);
+        }
+        //Add User to Classroom
+        [HttpPost("AddUser")]
+        public async Task<IActionResult> AddUserToClassroom(int id, [FromBody] AddUserDto dto)
+        {
+            var result = await _classroomService.AddUserToClassroomAsync(id, dto.UserId);
+            if (!result.Success) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
+        }
+
+        // Get all Classrooms
+        [HttpGet("GetAllClassrooms")]
+        public async Task<IActionResult> GetAll()
+        {
+            var classrooms = await _classroomService.GetAllClassroomsAsync();
+            return Ok(classrooms);
+        }
+
+        // Get Classroom by ID
+        [HttpGet("GetClassroom")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var classroom = await _classroomService.GetClassroomByIdAsync(id);
+            if (classroom == null) return NotFound();
+            return Ok(classroom);
+        }
+        //Get Users in Classroom
+        [HttpGet("GetUser")]
+        public async Task<IActionResult> GetUsersInClassroom(int id)
+        {
+            var users = await _classroomService.GetUsersInClassroomAsync(id);
+            if (users == null) return NotFound(new { message = "Classroom not found" });
+            return Ok(users);
+        }
+        // Update Classroom
+        [HttpPut("UpdateClassroom")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateClassroomDto dto)
+        {
+            var classroom = await _classroomService.UpdateClassroomAsync(id, dto.NewName);
+            if (classroom == null) return NotFound();
+            return Ok(classroom);
+        }
+        // Delete Classroom
+        [HttpDelete("DeleteClassroom")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _classroomService.DeleteClassroomAsync(id);
+            return NoContent();
+        }
+        // Remove user from classroom
+        [HttpDelete("RemoveUser")]
+        public async Task<IActionResult> RemoveUserFromClassroom(int classroomId, int userId)
+        {
+            var result = await _classroomService.RemoveUserFromClassroomAsync(classroomId, userId);
+            if (!result.Success) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
+        }
+    }
+}
