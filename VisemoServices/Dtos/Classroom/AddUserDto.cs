@@ -1,4 +1,4 @@
-﻿namespace VisemoServices.Dtos
+﻿namespace VisemoServices.Dtos.Classroom
 {
     public class AddUserDto
     {

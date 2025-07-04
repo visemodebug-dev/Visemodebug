@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using VisemoServices.Dtos;
+using VisemoServices.Dtos.Classroom;
 using VisemoServices.Services;
 
 namespace VisemoServices.Controllers
@@ -15,14 +15,14 @@ namespace VisemoServices.Controllers
             _classroomService = classroomService;
         }
         // Create Classroom
-        [HttpPost]
+        [HttpPost("CreateClassroom")]
         public async Task<IActionResult> Create([FromBody] CreateClassroomDto dto)
         {
             var classroom = await _classroomService.CreateClassroomAsync(dto.Name);
             return Ok(classroom);
         }
         //Add User to Classroom
-        [HttpPost("{id}/AddUser")]
+        [HttpPost("AddUser")]
         public async Task<IActionResult> AddUserToClassroom(int id, [FromBody] AddUserDto dto)
         {
             var result = await _classroomService.AddUserToClassroomAsync(id, dto.UserId);
@@ -31,7 +31,7 @@ namespace VisemoServices.Controllers
         }
 
         // Get all Classrooms
-        [HttpGet]
+        [HttpGet("GetAllClassrooms")]
         public async Task<IActionResult> GetAll()
         {
             var classrooms = await _classroomService.GetAllClassroomsAsync();
@@ -39,7 +39,7 @@ namespace VisemoServices.Controllers
         }
 
         // Get Classroom by ID
-        [HttpGet("{id}")]
+        [HttpGet("GetClassroom")]
         public async Task<IActionResult> GetById(int id)
         {
             var classroom = await _classroomService.GetClassroomByIdAsync(id);
@@ -47,7 +47,7 @@ namespace VisemoServices.Controllers
             return Ok(classroom);
         }
         //Get Users in Classroom
-        [HttpGet("{id}/Users")]
+        [HttpGet("GetUser")]
         public async Task<IActionResult> GetUsersInClassroom(int id)
         {
             var users = await _classroomService.GetUsersInClassroomAsync(id);
@@ -55,7 +55,7 @@ namespace VisemoServices.Controllers
             return Ok(users);
         }
         // Update Classroom
-        [HttpPut("{id}")]
+        [HttpPut("UpdateClassroom")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateClassroomDto dto)
         {
             var classroom = await _classroomService.UpdateClassroomAsync(id, dto.NewName);
@@ -63,14 +63,14 @@ namespace VisemoServices.Controllers
             return Ok(classroom);
         }
         // Delete Classroom
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteClassroom")]
         public async Task<IActionResult> Delete(int id)
         {
             await _classroomService.DeleteClassroomAsync(id);
             return NoContent();
         }
         // Remove user from classroom
-        [HttpDelete("{classroomId}/RemoveUser/{userId}")]
+        [HttpDelete("RemoveUser")]
         public async Task<IActionResult> RemoveUserFromClassroom(int classroomId, int userId)
         {
             var result = await _classroomService.RemoveUserFromClassroomAsync(classroomId, userId);

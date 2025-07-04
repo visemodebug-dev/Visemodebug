@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VisemoServices.Services;
+using VisemoServices.Dtos.Activity;
 
 namespace VisemoServices.Controllers
 {
@@ -14,26 +15,19 @@ namespace VisemoServices.Controllers
             _activityService = activityService;
         }
 
-        [HttpPost]
+        [HttpPost("CreateActivity")]
         public async Task<IActionResult> Create([FromBody] CreateActivityDto dto)
         {
             var activity = await _activityService.CreateActivityAsync(dto.ClassroomId, dto.Name, dto.Timer);
             return Ok(activity);
         }
 
-        [HttpGet("classroom/{classroomId}")]
+        [HttpGet("GetActivities")]
         public async Task<IActionResult> GetByClassroom(int classroomId)
         {
             var activities = await _activityService.GetActivitiesByClassroomAsync(classroomId);
             return Ok(activities);
         }
-    }
-
-    public class CreateActivityDto
-    {
-        public int ClassroomId { get; set; }
-        public string Name { get; set; }
-        public TimeSpan Timer { get; set; }
     }
 
 }
