@@ -77,5 +77,13 @@ namespace VisemoServices.Controllers
             if (!result.Success) return BadRequest(new { message = result.Message });
             return Ok(new { message = result.Message });
         }
+        //Search Query for User NOT in the current classroom
+        [HttpGet("SearchUsers")]
+        public async Task<IActionResult> SearchUsersNotInClassroom(int classroomId, [FromQuery] string idNumber)
+        {
+            var users = await _classroomService.SearchUsersNotInClassroom(classroomId, idNumber);
+            return Ok(users);
+        }
+
     }
 }
