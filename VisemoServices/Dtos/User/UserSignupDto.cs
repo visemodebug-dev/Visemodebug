@@ -12,6 +12,9 @@ namespace VisemoServices.Dtos.User
        public required string MiddleInitial { get; set; }
        public required string IdNumber { get; set; }
        public required IFormFile IdImage { get; set; }
+       [Required]
+       [RegularExpression("Student|Teacher", ErrorMessage = "Role must be 'Student' or 'Teacher'")]
        public string Role { get; set; }
+
     }
 }

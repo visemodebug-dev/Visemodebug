@@ -65,7 +65,8 @@ namespace VisemoServices.Services
                 lastName = dto.LastName,
                 middleInitial = dto.MiddleInitial,
                 idNumber = dto.IdNumber,
-                idImage = Path.Combine("uploads", fileName)
+                idImage = Path.Combine("uploads", fileName),
+                role = dto.Role
             };
 
             _context.Users.Add(newUser);
