@@ -11,6 +11,7 @@ namespace VisemoServices.Dtos.User
        public required string LastName { get; set; }
        public required string MiddleInitial { get; set; }
        public required string IdNumber { get; set; }
-       public required IFormFile IdImage { get; set; } 
+       public required IFormFile IdImage { get; set; }
+       public string Role { get; set; }
     }
 }
