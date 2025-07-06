@@ -2,7 +2,11 @@ import React, {useState} from "react";
 import ActivitiesTab from "./ActivitiesTab";
 import StudentTab from "./StudentTab";
 
-const ClassroomTabs: React.FC = () => {
+interface ClassroomTabsProps {
+    classroomId: number;
+}
+
+const ClassroomTabs: React.FC<ClassroomTabsProps> = ({ classroomId }) => {
     const [activeTab, setActiveTab] = useState<"activities" | "students">("activities");
 
     return (
@@ -25,8 +29,8 @@ const ClassroomTabs: React.FC = () => {
             </div>
 
             <div className="mt-4">
-                {activeTab === "activities" && <ActivitiesTab/>}
-                {activeTab === "students" && <StudentTab/>}
+                {activeTab === "activities" && <ActivitiesTab />}
+                {activeTab === "students" && <StudentTab classroomId={classroomId} />}
             </div>
         </div>
     )

@@ -6,6 +6,7 @@ const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/cl
 interface AddStudentProps {
     onClose: () => void;
     onAdd: (idNumber: string, name: string) => void;
+    classroomId: number;
 }
 
 const useDebounce = (value: string, delay: number) => {
@@ -24,11 +25,12 @@ const useDebounce = (value: string, delay: number) => {
     return debouncedValue;
 };
 
-const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd }) => {
+const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd, classroomId }) => {
   const [query, setQuery] = useState("");
   const [students, setStudents] = useState<{ idNumber: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+    const [selectedStudent, setSelectedStudent] = useState<{ idNumber: string; name: string } | null>(null);
 
   const debouncedQuery = useDebounce(query, 500);
 
@@ -48,8 +50,8 @@ const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd }) => {
             idNumber: string; 
             firstName: string; 
             lastName: string; 
-        }[]>(`${BASE_URL}/search`, {
-            params: { idNumber: debouncedQuery },
+        }[]>(`${BASE_URL}/SearchUsers`, {
+            params: { idNumber: debouncedQuery, classroomId },
         });
        if (res.data && res.data.length > 0) {
           setStudents(
@@ -72,11 +74,13 @@ const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd }) => {
     };
 
    fetchStudent();
-  }, [debouncedQuery]);
+  }, [debouncedQuery, classroomId]);
 
-  const handleSelect = (student: { idNumber: string; name: string }) => {
-    onAdd(student.idNumber, student.name);
-    onClose();
+  const handleAdd = () => {
+    if (selectedStudent) {
+      onAdd(selectedStudent.idNumber, selectedStudent.name);
+      onClose();
+    }
   };
 
    return (
@@ -90,7 +94,10 @@ const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd }) => {
           type="text"
           placeholder="Enter ID Number"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setSelectedStudent(null); // Reset selected student on new query
+          }}
           className="w-full border-b border-gray-400 p-2 bg-transparent outline-none mb-4"
         />
 
@@ -107,8 +114,9 @@ const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd }) => {
           {students.map((student) => (
             <li
               key={student.idNumber}
-              onClick={() => handleSelect(student)}
-              className="p-2 hover:bg-gray-200 cursor-pointer rounded"
+              onClick={() => setSelectedStudent(student)}
+              className={`p-2 rounded cursor-pointer hover:bg-gray-200 
+                ${selectedStudent?.idNumber === student.idNumber ? "bg-blue-100" : ""}`}
             >
               <strong>{student.idNumber}</strong> — {student.name}
             </li>
@@ -122,13 +130,13 @@ const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd }) => {
             Cancel
           </button>
           <button
-            disabled={!query || students.length === 0}
-            onClick={() => {
-            if (students[0]) {
-                handleSelect(students[0]);
-            }
-            }}
-            className="bg-gray-400 text-black px-4 py-1 rounded-full disabled:opacity-50"
+            disabled={!selectedStudent}
+            onClick={handleAdd}
+            className={`px-4 py-1 rounded-full text-white 
+            ${selectedStudent 
+              ? "bg-blue-500 hover:bg-blue-600" 
+              : "bg-gray-400 cursor-not-allowed"
+            }`}
           >
             Add
           </button>

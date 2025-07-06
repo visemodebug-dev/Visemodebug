@@ -4,22 +4,22 @@ import { Classroom } from "../../../../types/classroom";
 import ClassroomTabs from "../classroom/ClassroomTabs";
 
 interface ClassroomDetailProps {
-  id: string;
   onBack: () => void;
+  classroomId: number;
 }
 
-const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ id, onBack }) => {
+const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ onBack, classroomId }) => {
   const [classroom, setClassroom] = useState<Classroom | null>(null);
 
   useEffect(() => {
     const fetchClassroom = async () => {
       const data: Classroom[] = await getClassrooms();
-      const found = data.find((c) => c.id.toString() === id);
+      const found = data.find((c) => c.id === classroomId);
       setClassroom(found || null);
     };
 
     fetchClassroom();
-  }, [id]);
+  }, [classroomId]);
 
   if (!classroom) {
     return <div className="p-8">Classroom not found.</div>;
@@ -50,7 +50,7 @@ const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ id, onBack }) => {
         <p className="text-md">{classroom.teacherName}</p>
       </div>
 
-    <ClassroomTabs/>
+    <ClassroomTabs classroomId={classroomId} />
     </div>
   );
 };

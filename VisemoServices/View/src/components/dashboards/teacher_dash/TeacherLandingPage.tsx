@@ -107,7 +107,7 @@ const TeacherLandingPage: React.FC = () => {
 
            {selectedClassId ? (
             <ClassroomDetail
-              id={selectedClassId.toString()}
+              classroomId={selectedClassId}
               onBack={handleBackToDashboard}
             />
           ) : (
