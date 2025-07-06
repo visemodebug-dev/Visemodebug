@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
 
-const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/classroom";
+const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/Classroom";
 
 interface AddStudentProps {
     onClose: () => void;
@@ -10,11 +10,11 @@ interface AddStudentProps {
 }
 
 const useDebounce = (value: string, delay: number) => {
-    const [debouncedValue, setDeboucedValue] = useState(value);
+    const [debouncedValue, setDebouncedValue] = useState(value);
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            setDeboucedValue(value);
+            setDebouncedValue(value);
         }, delay);
 
         return () => {
@@ -76,7 +76,7 @@ const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd, classroomId }) 
    fetchStudent();
   }, [debouncedQuery, classroomId]);
 
-  const handleAdd = () => {
+  const handleAddStudents = () => {
     if (selectedStudent) {
       onAdd(selectedStudent.idNumber, selectedStudent.name);
       onClose();
@@ -131,7 +131,7 @@ const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd, classroomId }) 
           </button>
           <button
             disabled={!selectedStudent}
-            onClick={handleAdd}
+            onClick={handleAddStudents}
             className={`px-4 py-1 rounded-full text-white 
             ${selectedStudent 
               ? "bg-blue-500 hover:bg-blue-600" 
