@@ -27,10 +27,29 @@ export const submitAuthForm = async (formData: FormData) => {
     }
 };
 
-// Login
-export const login = async (email: string, password: string) => {
+// Login Student
+export const loginStudent = async (email: string, password: string) => {
     try {
-        const response = await axios.post(`${BASE_URL}/login`, {email,password}, {
+        const response = await axios.post(`${BASE_URL}/login/student`, {email,password}, {
+            headers: {"Content-Type" : "application/json"}
+        });
+
+        if (response.status === 200) {
+            localStorage.setItem("token", response.data.token);
+            return response.data;
+        } else {
+            throw new Error("Login Failed");
+        }
+    } catch (error: any) {
+        console.error("Error logging in:",error)
+        throw new Error(error.response?.data?.message || "Login failed.");
+    }
+};
+
+// Login Teacher
+export const loginTeacher = async (email: string, password: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/login/teacher`, {email,password}, {
             headers: {"Content-Type" : "application/json"}
         });
 

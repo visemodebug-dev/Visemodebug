@@ -2,33 +2,33 @@ import React, {useState} from "react";
 import AddStudent from "./AddStudent";
 import axios from "axios";
 
-const StudentTab: React.FC = () => {
+interface StudentTabProps {
+    classroomId: number;
+}
+
+const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/classroom";
+
+const StudentTab: React.FC<StudentTabProps> = ({classroomId}) =>  {
   const [showModal, setShowModal] = useState(false);
   const [students, setStudents] = useState<
-    { id: number; name: string }[]>([{ id: 1, name: "John Smith" },
-    { id: 2, name: "Jane Doe" },]);
+    { idNumber: string; name: string }[]>([]);
 
-  
-      const handleAddStudent = (idNumber: string, name: string) => {
-    const newStudent = {
-      id: Date.now(), // just a temporary unique id for now
-      name,
-    };
-    setStudents([...students, newStudent]);
-  };
 
-  //   const handleAddStudent = async (idNumber: string, name: string) => {
-  //       try {
-  //           await axios.post(`/api/classroom/AddStudent`, {
-  //       idNumber,
-  //       name,
-  //     });
+    const handleAddStudent = async (idNumber: string, name: string) => {
+        try {
+            const res = await axios.post(`${BASE_URL}/AddUsers`, {
+        idNumber,
+        name,
+        classroomId,
+      });
     
-  //       setStudents((prev) => [...prev, { usn, name }]);
-  //   } catch (err) {
-  //     console.error("Failed to add student to classroom", err);
-  //   }
-  // };
+        const newStudent = res.data || { idNumber, name };
+
+    setStudents((prev) => [...prev, newStudent]);
+    } catch (err) {
+      console.error("Failed to add student to classroom", err);
+    }
+  };
 
     return (
         <div>
@@ -58,7 +58,7 @@ const StudentTab: React.FC = () => {
           >
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 bg-black rounded-full"></span>
-              <span>{student.name} ({student.id})</span> // Replace to idNumber 
+              <span>{student.name} ({student.idNumber})</span>
             </div>
             <button className="text-gray-500 hover:text-black">⋮</button>
           </div>
@@ -67,6 +67,7 @@ const StudentTab: React.FC = () => {
 
         {showModal && (
         <AddStudent
+          classroomId={classroomId}
           onClose={() => setShowModal(false)}
           onAdd={handleAddStudent}
         />
