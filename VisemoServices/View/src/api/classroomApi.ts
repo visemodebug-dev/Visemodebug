@@ -8,8 +8,18 @@ const API = axios.create({
 
 // Create Classroom
 export const createClassroom = async (className: string) => {
-  const response = await API.post("/CreateClassroom", { name: className });
-  return response.data;
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found. Please log in first.");
+
+  return axios.post(
+    `${BASE_URL}/CreateClassroom`,
+    { name: className },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };
 
 // Get All Classrooms
