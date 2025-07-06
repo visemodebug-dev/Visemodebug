@@ -113,5 +113,34 @@ namespace VisemoServices.Services
 
             return (true, "User removed from classroom successfully");
         }
+        public async Task<IEnumerable<object>> SearchUsersNotInClassroom(int classroomId, string partialIdNumber)
+        {
+            var classroom = await _context.Classrooms
+                                          .Include(c => c.Users)
+                                          .FirstOrDefaultAsync(c => c.Id == classroomId);
+
+            if (classroom == null)
+                return Enumerable.Empty<object>();
+
+            // Get user IDs already in the classroom
+            var userIdsInClassroom = classroom.Users.Select(u => u.Id).ToHashSet();
+
+            // Get users not in the classroom and matching the partial idNumber
+            var users = await _context.Users
+                .Where(u => !userIdsInClassroom.Contains(u.Id) &&
+                            u.idNumber.Contains(partialIdNumber))
+                .Select(u => new
+                {
+                    u.Id,
+                    u.firstName,
+                    u.lastName,
+                    u.Email,
+                    u.idNumber
+                })
+                .ToListAsync();
+
+            return users;
+        }
+
     }
 }

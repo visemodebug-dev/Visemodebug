@@ -26,7 +26,9 @@ namespace VisemoServices.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, $"{user.firstName} {user.lastName}")
+                new Claim(ClaimTypes.Name, $"{user.firstName} {user.lastName}"),
+                new Claim(ClaimTypes.Role, user.role)
+
             };
 
             var token = new JwtSecurityToken(
