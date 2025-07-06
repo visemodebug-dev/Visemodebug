@@ -2,7 +2,7 @@
 {
     public class AddUserDto
     {
-        public int UserId { get; set; }
+        public string idNumber { get; set; }
     }
     public class CreateClassroomDto
     {
