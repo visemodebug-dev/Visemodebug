@@ -24,7 +24,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
     idImage: null as File | null,
   });
 
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState({  
     firstName: "",
     lastName: "",
     email: "",
@@ -118,6 +118,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
         formDataToSend.append("password", formData.password);
         formDataToSend.append("confirmPassword", formData.confirmPassword);
         formDataToSend.append("idImage", idImage as File);
+        formDataToSend.append("role", role); // Dito kA FJ
 
         await submitAuthForm(formDataToSend); // Use the service function
       } else {
