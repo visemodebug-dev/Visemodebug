@@ -1,4 +1,4 @@
-﻿namespace VisemoAlgorithm.Service
+﻿namespace VisemoAlgorithm.Service.Interface
 {
     public class ISentimentAnalysis
     {
