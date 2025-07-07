@@ -5,7 +5,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { login, submitAuthForm } from "../../services/authService";
+import { loginStudent, loginTeacher , submitAuthForm } from "../../services/authService";
 
 interface AuthFormProps {
   type: "login" | "signup";
@@ -22,9 +22,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
     password: "",
     confirmPassword: "",
     idImage: null as File | null,
+    role: role,
   });
 
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState({  
     firstName: "",
     lastName: "",
     email: "",
@@ -32,6 +33,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
     password: "",
     confirmPassword: "",
     idImage: "",
+    role: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -118,6 +120,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
         formDataToSend.append("password", formData.password);
         formDataToSend.append("confirmPassword", formData.confirmPassword);
         formDataToSend.append("idImage", idImage as File);
+        formDataToSend.append("role", role); // Dito kA FJ
 
         await submitAuthForm(formDataToSend); // Use the service function
       } else {
@@ -127,7 +130,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
       if (!errors.password) {
         console.log(`${type} form submitted for ${role}:`, formData);
         try {
-          const res = await login(formData.email, formData.password);
+          const res = await (role === "Student" ? loginStudent : loginTeacher)(formData.email, formData.password);
           console.log("Login successful:", res);
 
         

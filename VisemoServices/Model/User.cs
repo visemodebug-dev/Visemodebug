@@ -27,6 +27,10 @@ namespace VisemoServices.Model
         [Required, MaxLength(255)]
         public string? idImage { get; set; }
 
+        [Required, MaxLength(10)]
+        public string? role { get; set; }
+
+
         //Foreign key to Classroom
         public List<Classroom> Classrooms { get; set; } = new List<Classroom>();
     }

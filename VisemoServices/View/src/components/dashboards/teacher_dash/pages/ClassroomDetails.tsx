@@ -1,26 +1,25 @@
-import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getClassrooms } from "../../../../api/classroomApi";
 import { Classroom } from "../../../../types/classroom";
+import ClassroomTabs from "../classroom/ClassroomTabs";
 
 interface ClassroomDetailProps {
-  id: string;
   onBack: () => void;
+  classroomId: number;
 }
 
-const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ id, onBack }) => {
-  const navigate = useNavigate();
+const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ onBack, classroomId }) => {
   const [classroom, setClassroom] = useState<Classroom | null>(null);
 
   useEffect(() => {
     const fetchClassroom = async () => {
       const data: Classroom[] = await getClassrooms();
-      const found = data.find((c) => c.id.toString() === id);
+      const found = data.find((c) => c.id === classroomId);
       setClassroom(found || null);
     };
 
     fetchClassroom();
-  }, [id]);
+  }, [classroomId]);
 
   if (!classroom) {
     return <div className="p-8">Classroom not found.</div>;
@@ -45,25 +44,13 @@ const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ id, onBack }) => {
         Back to Dashboard
       </button>
 
-      {/* 🟨 Header */}
+      
       <div className="bg-yellow-300 rounded-xl shadow-md flex justify-between items-center p-6">
         <h1 className="text-2xl font-bold">{classroom.className}</h1>
         <p className="text-md">{classroom.teacherName}</p>
       </div>
 
-      {/* 🔥 Activities */}
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-2">Activities</h2>
-        <ul className="list-disc list-inside">
-          {classroom.activities && classroom.activities.length > 0 ? (
-            classroom.activities.map((activity, index) => (
-              <li key={index}>{activity}</li>
-            ))
-          ) : (
-            <li>No activities available yet.</li>
-          )}
-        </ul>
-      </div>
+    <ClassroomTabs classroomId={classroomId} />
     </div>
   );
 };

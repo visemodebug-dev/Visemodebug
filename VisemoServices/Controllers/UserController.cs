@@ -35,32 +35,62 @@ namespace VisemoServices.Controllers
             }
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto login)
+        [HttpPost("login/student")]
+        public async Task<IActionResult> StudentLogin([FromBody] LoginDto login)
         {
-            var loggedInUser = await _userServices.Login(login.Email, login.Password);
-            if (loggedInUser == null)
+            var user = await _userServices.Login(login.Email, login.Password);
+            if (user == null || user.role != "Student")
             {
-                return Unauthorized("Invalid email or password");
+                return Unauthorized("Invalid student credentials");
             }
 
-            var token = _authTokenService.GenerateToken(loggedInUser);
+            var token = _authTokenService.GenerateToken(user);
 
             return Ok(new
             {
                 token,
                 user = new
                 {
-                    loggedInUser.Id,
-                    loggedInUser.Email,
-                    loggedInUser.firstName,
-                    loggedInUser.lastName,
-                    loggedInUser.middleInitial,
-                    loggedInUser.idNumber,
-                    loggedInUser.idImage
+                    user.Id,
+                    user.Email,
+                    user.firstName,
+                    user.lastName,
+                    user.middleInitial,
+                    user.idNumber,
+                    user.idImage,
+                    user.role
                 }
             });
         }
+
+        [HttpPost("login/teacher")]
+        public async Task<IActionResult> TeacherLogin([FromBody] LoginDto login)
+        {
+            var user = await _userServices.Login(login.Email, login.Password);
+            if (user == null || user.role != "Teacher")
+            {
+                return Unauthorized("Invalid teacher credentials");
+            }
+
+            var token = _authTokenService.GenerateToken(user);
+
+            return Ok(new
+            {
+                token,
+                user = new
+                {
+                    user.Id,
+                    user.Email,
+                    user.firstName,
+                    user.lastName,
+                    user.middleInitial,
+                    user.idNumber,
+                    user.idImage,
+                    user.role
+                }
+            });
+        }
+
 
 
 

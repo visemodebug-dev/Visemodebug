@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using VisemoServices.Dtos.Classroom;
 using VisemoServices.Services;
 
@@ -15,17 +17,29 @@ namespace VisemoServices.Controllers
             _classroomService = classroomService;
         }
         // Create Classroom
+        [Authorize(Roles = "Teacher")]
         [HttpPost("CreateClassroom")]
-        public async Task<IActionResult> Create([FromBody] CreateClassroomDto dto)
+        public async Task<IActionResult> CreateClassroom([FromBody] CreateClassroomRequestDto request)
         {
-            var classroom = await _classroomService.CreateClassroomAsync(dto.Name);
-            return Ok(classroom);
+            try
+            {
+                // Extract user ID from token
+                var teacherUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+
+                var classroom = await _classroomService.CreateClassroomAsync(request.Name, teacherUserId);
+                return Ok(classroom);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
         //Add User to Classroom
         [HttpPost("AddUser")]
-        public async Task<IActionResult> AddUserToClassroom(int id, [FromBody] AddUserDto dto)
+        public async Task<IActionResult> AddUserToClassroom(int classroomId, [FromBody] AddUserDto dto)
         {
-            var result = await _classroomService.AddUserToClassroomAsync(id, dto.UserId);
+            var result = await _classroomService.AddUserToClassroomAsync(classroomId, dto.idNumber);
             if (!result.Success) return BadRequest(new { message = result.Message });
             return Ok(new { message = result.Message });
         }
@@ -71,11 +85,19 @@ namespace VisemoServices.Controllers
         }
         // Remove user from classroom
         [HttpDelete("RemoveUser")]
-        public async Task<IActionResult> RemoveUserFromClassroom(int classroomId, int userId)
+        public async Task<IActionResult> RemoveUserFromClassroom(int classroomId, string idNumber)
         {
-            var result = await _classroomService.RemoveUserFromClassroomAsync(classroomId, userId);
+            var result = await _classroomService.RemoveUserFromClassroomAsync(classroomId, idNumber);
             if (!result.Success) return BadRequest(new { message = result.Message });
             return Ok(new { message = result.Message });
         }
+        //Search Query for User NOT in the current classroom
+        [HttpGet("SearchUsers")]
+        public async Task<IActionResult> SearchUsersNotInClassroom(int classroomId, [FromQuery] string idNumber)
+        {
+            var users = await _classroomService.SearchUsersNotInClassroom(classroomId, idNumber);
+            return Ok(users);
+        }
+
     }
 }
