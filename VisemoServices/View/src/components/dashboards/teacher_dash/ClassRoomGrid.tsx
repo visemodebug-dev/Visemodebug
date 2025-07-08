@@ -83,11 +83,13 @@ const ClassRoomGrid: React.FC<ClassRoomGridProps> = ({ classRooms, onClassClick,
                 </div>
               )}
 
-              <div className="p-4">
+                <div className="p-4">
                 <ul className="list-disc list-inside">
                   {classroom.activities && classroom.activities.length > 0 ? (
-                    classroom.activities.map((activity, index) => (
-                      <li key={index}>{activity}</li>
+                    classroom.activities.map(() => (
+                      <li key={classroom.id}>
+                        <strong>{classroom.className}</strong>
+                      </li>
                     ))
                   ) : (
                     <li>No activities yet</li>

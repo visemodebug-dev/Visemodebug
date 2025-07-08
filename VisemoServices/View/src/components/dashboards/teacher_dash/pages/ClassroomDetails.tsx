@@ -26,7 +26,7 @@ const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ onBack, classroomId }
   }
 
   return (
-    <div className="p-8">
+    <div className="p-5">
       <button
         onClick={onBack}
         className="flex items-center text-white hover:underline mb-4"

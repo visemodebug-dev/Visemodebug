@@ -7,3 +7,12 @@ export interface Classroom {
   teacherName: string;
   activities?: string[];
 }
+
+export interface Activity {
+  id: number;
+  name: string;
+  timer: string;
+  instruction: string;
+  createdAt: string;
+  classroomId: number;
+}

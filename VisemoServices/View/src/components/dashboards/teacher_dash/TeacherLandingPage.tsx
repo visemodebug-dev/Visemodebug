@@ -75,7 +75,7 @@ const TeacherLandingPage: React.FC = () => {
 
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col bg-green-500 ">
       <div
         className={`
           transition-all duration-300 ease-in-out
@@ -85,10 +85,10 @@ const TeacherLandingPage: React.FC = () => {
         <Navbar user={{ name: "Carl Andre Interino", role: "Teacher" }} logoText="VISEMO" />
       </div>
 
-      <div className="min-h-screen bg-green-500 relative">
+      <div className="w-full relative">
         <div
           className={`
-            flex-1 overflow-auto
+            flex-1 overflow-auto bg-green-500
             transition-all duration-300
             ${isVisible ? "mt-0" : "-mt-16"}
           `}

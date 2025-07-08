@@ -29,7 +29,7 @@ const ClassroomTabs: React.FC<ClassroomTabsProps> = ({ classroomId }) => {
             </div>
 
             <div className="mt-4">
-                {activeTab === "activities" && <ActivitiesTab />}
+                {activeTab === "activities" && <ActivitiesTab classroomId={classroomId} />}
                 {activeTab === "students" && <StudentTab classroomId={classroomId} />}
             </div>
         </div>
