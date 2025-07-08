@@ -13,13 +13,14 @@ namespace VisemoServices.Services
             _context = context;
         }
 
-        public async Task<Activity> CreateActivityAsync(int classroomId, string name, TimeSpan timer)
+        public async Task<Activity> CreateActivityAsync(int classroomId, string name, TimeSpan timer, string instruction)
         {
             var activity = new Activity
             {
                 Name = name,
                 Timer = timer,
-                ClassroomId = classroomId
+                ClassroomId = classroomId,
+                Instruction = instruction
             };
 
             _context.Activities.Add(activity);
