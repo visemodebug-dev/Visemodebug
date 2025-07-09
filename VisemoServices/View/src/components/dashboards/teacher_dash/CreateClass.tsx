@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 interface CreateClassProps {
-    onCreate: (ClassName: string) => void;
+    onCreate: (className: string) => void;
     onCancel: () => void;
 }
 

@@ -4,6 +4,7 @@ import axios from "axios";
 
 interface StudentTabProps {
     classroomId: number;
+    role: "Teacher" | "Student"
 }
 
 const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/Classroom";
@@ -161,6 +162,7 @@ const StudentTab: React.FC<StudentTabProps> = ({classroomId}) =>  {
           classroomId={classroomId}
           onClose={() => setShowModal(false)}
           onAdd={handleAddStudent}
+          role= "Teacher"
         />
       )}
         </div>

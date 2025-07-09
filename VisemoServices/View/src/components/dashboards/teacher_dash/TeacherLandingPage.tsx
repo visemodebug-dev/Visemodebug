@@ -6,6 +6,9 @@ import { getClassrooms, createClassroom } from "../../../api/classroomApi";
 import { Classroom } from "../../../types/classroom";
 import ClassRoomGrid from "./ClassRoomGrid";
 import ClassroomDetail from "./pages/ClassroomDetails";
+import axios from "axios";
+
+const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/classroom";
 
 
 const TeacherLandingPage: React.FC = () => {
@@ -15,6 +18,18 @@ const TeacherLandingPage: React.FC = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
 
+  const handleDelete = async (id: number) => {
+    try {
+      await axios.delete(`${BASE_URL}/DeleteClassroom`, {
+        params: { id },
+      });
+      // Remove the deleted class from UI
+      setClassrooms((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error("Failed to delete classroom", err);
+      alert("Failed to delete classroom. Please try again.");
+    }
+  };
 
   // Fetch classrooms
   const fetchClassrooms = async () => {
@@ -32,6 +47,7 @@ const TeacherLandingPage: React.FC = () => {
       console.log("Created class response:", response);
       await fetchClassrooms(); 
       setIsCreating(false);
+      setSelectedClassId(null);
     } catch (error) {
       console.error("Error creating class:", error);
       alert("Failed to create class.");
@@ -57,8 +73,9 @@ const TeacherLandingPage: React.FC = () => {
     setSelectedClassId(null);
   };
 
+
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col bg-green-500 ">
       <div
         className={`
           transition-all duration-300 ease-in-out
@@ -68,10 +85,10 @@ const TeacherLandingPage: React.FC = () => {
         <Navbar user={{ name: "Carl Andre Interino", role: "Teacher" }} logoText="VISEMO" />
       </div>
 
-      <div className="min-h-screen bg-green-500 relative">
+      <div className="w-full relative">
         <div
           className={`
-            flex-1 overflow-auto
+            flex-1 overflow-auto bg-green-500
             transition-all duration-300
             ${isVisible ? "mt-0" : "-mt-16"}
           `}
@@ -99,22 +116,29 @@ const TeacherLandingPage: React.FC = () => {
         )}
 
           {isCreating && (
-            <CreateClass
-              onCreate={handleCreateClass}
-              onCancel={() => setIsCreating(false)}
-            />
-          )}
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 p-6">
+              <CreateClass
+                onCreate={handleCreateClass}
+                onCancel={() => setIsCreating(false)}
+              />
+            </div>
+          </div>
+        )}
 
            {selectedClassId ? (
             <ClassroomDetail
               classroomId={selectedClassId}
               onBack={handleBackToDashboard}
+              role="Teacher"
             />
           ) : (
-            <ClassRoomGrid
-              classRooms={classrooms}
-              onClassClick={handleClassClick}
-            />
+            <div className={`${isCreating ? "pointer-events-none opacity-50" : ""}`}>
+              <ClassRoomGrid
+                  classRooms={classrooms}
+                  onClassClick={handleClassClick}
+                  onDeleteClass={handleDelete} role={"Teacher"}              />
+            </div>
           )}
         </div>
 

@@ -9,6 +9,7 @@ namespace VisemoServices.Model
         public string Name { get; set; }
         public TimeSpan Timer { get; set; }  // Duration of the activity
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string Instruction { get; set; }
 
         // Foreign key to Classroom
         public int ClassroomId { get; set; }

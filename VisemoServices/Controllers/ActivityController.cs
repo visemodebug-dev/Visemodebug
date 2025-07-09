@@ -18,7 +18,7 @@ namespace VisemoServices.Controllers
         [HttpPost("CreateActivity")]
         public async Task<IActionResult> Create([FromBody] CreateActivityDto dto)
         {
-            var activity = await _activityService.CreateActivityAsync(dto.ClassroomId, dto.Name, dto.Timer);
+            var activity = await _activityService.CreateActivityAsync(dto.ClassroomId, dto.Name, dto.Timer, dto.Instruction);
             return Ok(activity);
         }
 

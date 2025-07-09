@@ -11,9 +11,6 @@ import AdminLogin from './components/loginauth/AdminLogin';
 import AdminSignUp from './components/loginauth/AdminSignup';
 import ForgotPassword from './components/loginauth/ForgotPassword';
 import SetNewPassword from './components/loginauth/SetNewPassword';
-import ActivityPage from './components/dashboards/student_dash/ActivitiesPage/ActivityPage';
-import ClassDetails from './components/dashboards/student_dash/ClassDetails';
-import ClassList from './components/dashboards/student_dash/ClassList';
 import StudentLandingPage from './components/dashboards/student_dash/StudentLandingPage';
 import TeacherLandingPage from './components/dashboards/teacher_dash/TeacherLandingPage';
 
@@ -48,11 +45,7 @@ function App() {
     </Route>
 
     {/* Student Dashboard */}
-    <Route path="/student-dashboard" element={<StudentLandingPage />}>
-      <Route index element={<ClassList />} /> {/* default child */}
-      <Route path="class/:id" element={<ClassDetails />} />
-      <Route path="activity/:activityId" element={<ActivityPage />} /> {/* ✅ Fixed to relative path */}
-    </Route>
+    <Route path="/student-dashboard" element={<StudentLandingPage />} />
   </Routes>
 </Router>
   );
