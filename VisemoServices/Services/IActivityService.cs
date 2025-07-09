@@ -9,6 +9,9 @@ namespace VisemoServices.Services
         Task<IEnumerable<Activity>> GetActivitiesByClassroomAsync(int classroomId);
         Task<Activity> GetActivityByIdAsync(int id);
         Task DeleteActivityAsync(int id);
+        Task<(bool Success, string Message)> StartActivity(int activityId);
+        Task<(bool Success, string Message)> StopActivity(int activityId);
+
     }
 
 }
