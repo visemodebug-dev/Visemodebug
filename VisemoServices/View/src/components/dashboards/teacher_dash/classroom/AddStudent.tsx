@@ -7,6 +7,7 @@ interface AddStudentProps {
     onClose: () => void;
     onAdd: (idNumber: string, name: string) => void;
     classroomId: number;
+    role: "Teacher" | "Student";
 }
 
 const useDebounce = (value: string, delay: number) => {
@@ -25,7 +26,7 @@ const useDebounce = (value: string, delay: number) => {
     return debouncedValue;
 };
 
-const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd, classroomId }) => {
+const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd, classroomId, role }) => {
   const [query, setQuery] = useState("");
   const [students, setStudents] = useState<{ idNumber: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -100,13 +101,6 @@ const AddStudent: React.FC<AddStudentProps> = ({ onClose, onAdd, classroomId }) 
           }}
           className="w-full border-b border-gray-400 p-2 bg-transparent outline-none mb-4"
         />
-
-        {/* <button
-          onClick={() => fetchStudent(usn)}
-          className="text-sm text-blue-600 hover:underline mb-4"
-        >
-          Search
-        </button> */}
 
         {loading && <div className="text-sm text-gray-500">Loading…</div>}
 

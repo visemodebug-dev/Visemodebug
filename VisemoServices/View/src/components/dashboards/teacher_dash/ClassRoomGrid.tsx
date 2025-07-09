@@ -4,14 +4,20 @@ import React, { useState } from "react";
 interface ClassRoomGridProps {
   classRooms: Classroom[];
   onClassClick: (id: number) => void;
-  onDeleteClass: (id: number) => void;
+  onDeleteClass?: (id: number) => void;
+  role: "Teacher" | "Student";
 }
 
-const ClassRoomGrid: React.FC<ClassRoomGridProps> = ({ classRooms, onClassClick, onDeleteClass }) => {
+const ClassRoomGrid: React.FC<ClassRoomGridProps> = ({
+  classRooms,
+  onClassClick,
+  onDeleteClass,
+  role
+}) => {
   const [confirmId, setConfirmId] = useState<number | null>(null);
 
   const confirmDelete = () => {
-    if (confirmId !== null) {
+    if (confirmId !== null && onDeleteClass) {
       onDeleteClass(confirmId);
       setConfirmId(null);
     }
@@ -22,19 +28,18 @@ const ClassRoomGrid: React.FC<ClassRoomGridProps> = ({ classRooms, onClassClick,
       <h1 className="text-3xl font-bold mb-6">My Classes</h1>
 
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {classRooms.map((classroom) => {
-          console.log("Rendering classroom:", classroom);
-          return (
-            <div
-              key={classroom.id}
-              onClick={() => onClassClick(Number(classroom.id))}
-              className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer 
-                hover:scale-105 transition-transform duration-200 z-20 relative"
-            >
-              <div className="bg-yellow-300 p-4 relative">
-                <h2 className="text-xl font-bold">{classroom.className}</h2>
-                <p className="text-sm">Teacher: {classroom.teacherName}</p>
+        {classRooms.map((classroom) => (
+          <div
+            key={classroom.id}
+            onClick={() => onClassClick(Number(classroom.id))}
+            className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer 
+              hover:scale-105 transition-transform duration-200 z-20 relative"
+          >
+            <div className="bg-yellow-300 p-4 relative">
+              <h2 className="text-xl font-bold">{classroom.className}</h2>
+              <p className="text-sm">Teacher: {classroom.teacherName}</p>
 
+              {role === "Teacher" && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -58,47 +63,47 @@ const ClassRoomGrid: React.FC<ClassRoomGridProps> = ({ classRooms, onClassClick,
                     />
                   </svg>
                 </button>
-              </div>
-
-              {confirmId === classroom.id && (
-                <div
-                  className="absolute inset-0 bg-white bg-opacity-90 flex flex-col justify-center items-center gap-2 text-center p-4 z-20"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <p className="text-sm">Are you sure you want to delete this class?</p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setConfirmId(null)}
-                      className="px-2 py-1 bg-gray-300 rounded text-sm"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={confirmDelete}
-                      className="px-2 py-1 bg-red-600 text-white rounded text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
               )}
-
-                <div className="p-4">
-                <ul className="list-disc list-inside">
-                  {classroom.activities && classroom.activities.length > 0 ? (
-                    classroom.activities.map(() => (
-                      <li key={classroom.id}>
-                        <strong>{classroom.className}</strong>
-                      </li>
-                    ))
-                  ) : (
-                    <li>No activities yet</li>
-                  )}
-                </ul>
-              </div>
             </div>
-          );
-        })}
+
+            {confirmId === classroom.id && role === "Teacher" && (
+              <div
+                className="absolute inset-0 bg-white bg-opacity-90 flex flex-col justify-center items-center gap-2 text-center p-4 z-20"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="text-sm">Are you sure you want to delete this class?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfirmId(null)}
+                    className="px-2 py-1 bg-gray-300 rounded text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmDelete}
+                    className="px-2 py-1 bg-red-600 text-white rounded text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="p-4">
+              <ul className="list-disc list-inside">
+                {classroom.activities && classroom.activities.length > 0 ? (
+                  classroom.activities.map((activity: any, index: number) => (
+                    <li key={index}>
+                      <strong>{activity.name || "Unnamed activity"}</strong>
+                    </li>
+                  ))
+                ) : (
+                  <li>No activities yet</li>
+                )}
+              </ul>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

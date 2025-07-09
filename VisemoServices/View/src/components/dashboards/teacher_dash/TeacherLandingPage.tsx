@@ -130,14 +130,14 @@ const TeacherLandingPage: React.FC = () => {
             <ClassroomDetail
               classroomId={selectedClassId}
               onBack={handleBackToDashboard}
+              role="Teacher"
             />
           ) : (
             <div className={`${isCreating ? "pointer-events-none opacity-50" : ""}`}>
               <ClassRoomGrid
-                classRooms={classrooms}
-                onClassClick={handleClassClick}
-                onDeleteClass={handleDelete}
-              />
+                  classRooms={classrooms}
+                  onClassClick={handleClassClick}
+                  onDeleteClass={handleDelete} role={"Teacher"}              />
             </div>
           )}
         </div>

@@ -2,14 +2,19 @@ import { useEffect, useState } from "react";
 import { getClassrooms } from "../../../../api/classroomApi";
 import { Classroom } from "../../../../types/classroom";
 import ClassroomTabs from "../classroom/ClassroomTabs";
+import { Activity } from "../../../../types/classroom";
+import ActivityDetails from "../classroom/ActivityDetails";
 
 interface ClassroomDetailProps {
   onBack: () => void;
   classroomId: number;
+  role: "Teacher" | "Student";
 }
 
-const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ onBack, classroomId }) => {
+const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ onBack, classroomId, role}) => {
   const [classroom, setClassroom] = useState<Classroom | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+
 
   useEffect(() => {
     const fetchClassroom = async () => {
@@ -23,6 +28,15 @@ const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ onBack, classroomId }
 
   if (!classroom) {
     return <div className="p-8">Classroom not found.</div>;
+  }
+
+  if (selectedActivity) {
+    return (
+      <ActivityDetails
+        activity={selectedActivity}
+        onBack={() => setSelectedActivity(null)}
+      />
+    );
   }
 
   return (
@@ -50,7 +64,10 @@ const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ onBack, classroomId }
         <p className="text-md">{classroom.teacherName}</p>
       </div>
 
-    <ClassroomTabs classroomId={classroomId} />
+    <ClassroomTabs 
+        role={role}
+        classroomId={classroomId}
+        />
     </div>
   );
 };

@@ -28,7 +28,7 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack }) =
         Back to Activities
       </button>
 
-      <div className="bg-white rounded shadow p-4">
+      <div className="p-4">
         <h1 className="text-2xl font-bold mb-2">{activity.name}</h1>
         <p className="text-sm text-gray-600 mb-2">
           Created: {new Date(activity.createdAt).toLocaleString()}
