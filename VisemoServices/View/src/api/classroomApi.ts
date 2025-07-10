@@ -6,13 +6,13 @@ const API = axios.create({
   baseURL: BASE_URL,
 });
 
-// Create Classroom
+// // Create Classroom
 export const createClassroom = async (className: string) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("No token found. Please log in first.");
 
-  return axios.post(
-    `${BASE_URL}/classroom/CreateClassroom`,
+  return API.post(
+    `/classroom/CreateClassroom`,
     { name: className },
     {
       headers: {
@@ -22,6 +22,7 @@ export const createClassroom = async (className: string) => {
   );
 };
 
+
 // Get All Classrooms
 export const getClassrooms = async () => {
   const response = await API.get("/classroom/GetAllClassrooms");
@@ -29,8 +30,10 @@ export const getClassrooms = async () => {
 };
 
 // Delete Classroom
-export const deleteClassroom = async (id: string) => {
-  const response = await API.delete(`/classroom/DeleteClassroom/${id}`);
+export const deleteClassroom = async (id: number) => {
+  const response = await API.delete(`/classroom/DeleteClassroom/`, {
+    params: {id}
+  });
   return response.data;
 };
 
@@ -65,3 +68,13 @@ export const getActivities = async (classroomId: number) => {
   });
   return response.data;
 };
+
+export const startActivity = (activityId: number) =>
+  API.post(`/Activity/StartActivity`, null, {
+    params: { activityId },
+  });
+
+  export const stopActivity = (activityId: number) =>
+  API.post(`/Activity/StopActivity`,null,{
+    params: { activityId },
+  });

@@ -35,6 +35,7 @@ const ClassroomDetail: React.FC<ClassroomDetailProps> = ({ onBack, classroomId, 
       <ActivityDetails
         activity={selectedActivity}
         onBack={() => setSelectedActivity(null)}
+        role= {role}
       />
     );
   }

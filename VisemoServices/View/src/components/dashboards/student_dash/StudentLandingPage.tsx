@@ -112,7 +112,7 @@ const StudentLandingPage: React.FC = () => {
 
         {selectedActivity && (
           <div className="p-4">
-            <ActivityDetails activity={selectedActivity} onBack={handleBackToActivities} />
+            <ActivityDetails activity={selectedActivity} onBack={handleBackToActivities} role="Student"/>
           </div>
         )}
 

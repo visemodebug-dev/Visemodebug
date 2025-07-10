@@ -52,7 +52,7 @@ const ClassroomTabs: React.FC<ClassroomTabsProps> = ({ classroomId, role }) => {
         {activeTab === "activities" && (
           <>
             {selectedActivity ? (
-              <ActivityDetails activity={selectedActivity} onBack={handleBackToActivities} />
+              <ActivityDetails activity={selectedActivity} onBack={handleBackToActivities} role={role} />
             ) : (
               <ActivitiesTab
                 classroomId={classroomId}
