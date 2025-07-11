@@ -123,6 +123,7 @@ builder.Services.AddDbContext<VisemoAlgoDbContext>(options =>
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddHttpClient<EmotionDetection>();
 builder.Services.AddScoped<IEmotionServices, EmotionServices>();
+builder.Services.AddScoped<EmotionCategorizationService>();
 builder.Services.AddScoped<IAuthTokenService, AuthTokenService>();
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
