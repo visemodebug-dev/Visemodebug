@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using VisemoAlgorithm.Service;
+using VisemoAlgorithm.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,12 +101,22 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 //  Database setup
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var serverVersion = ServerVersion.AutoDetect(connectionString);
+// Database setup - VisemoDb (main database)
+var mainDbConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+var mainDbVersion = ServerVersion.AutoDetect(mainDbConnection);
 
 builder.Services.AddDbContext<DatabaseContext>(options =>
 {
-    options.UseMySql(connectionString, serverVersion);
+    options.UseMySql(mainDbConnection, mainDbVersion);
+});
+
+// Database setup - VisemoAlgoDb (for algorithm/emotion tracking)
+var algoDbConnection = builder.Configuration.GetConnectionString("AlgoDbConnection");
+var algoDbVersion = ServerVersion.AutoDetect(algoDbConnection);
+
+builder.Services.AddDbContext<VisemoAlgoDbContext>(options =>
+{
+    options.UseMySql(algoDbConnection, algoDbVersion);
 });
 
 //  Dependency Injection

@@ -11,6 +11,7 @@ namespace VisemoAlgorithm.Data
         public DbSet<SentimentLedger> SentimentLedgers { get; set; }
         public DbSet<StudentSentimentSummary> StudentSentimentSummaries { get; set; }
         public DbSet<SelfAssessment> SelfAssessments { get; set; }
+        public DbSet<UserEmotion> UserEmotions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,14 @@ namespace VisemoAlgorithm.Data
                 .ToTable("SelfAssessment");
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<UserEmotion>()
+            .HasKey(e => e.Id);
+
+            // Simulate foreign key, but not enforced
+            modelBuilder.Entity<UserEmotion>()
+                .Property(e => e.UserId)
+                .IsRequired();
         }
     }
 }
