@@ -12,6 +12,7 @@ export interface Activity {
   id: number;
   name: string;
   timer: string;
+  isStarted: boolean;
   instruction: string;
   createdAt: string;
   classroomId: number;

@@ -28,6 +28,25 @@ namespace VisemoServices.Controllers
             var activities = await _activityService.GetActivitiesByClassroomAsync(classroomId);
             return Ok(activities);
         }
+
+        [HttpPost("StartActivity")]
+        public async Task<IActionResult> StartActivity(int activityId)
+        {
+            var result = await _activityService.StartActivity(activityId);
+            if (!result.Success) return BadRequest(new { message = result.Message });
+
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost("StopActivity")]
+        public async Task<IActionResult> StopActivity(int activityId)
+        {
+            var result = await _activityService.StopActivity(activityId);
+            if (!result.Success) return BadRequest(new { message = result.Message });
+
+            return Ok(new { message = result.Message });
+        }
+
     }
 
 }

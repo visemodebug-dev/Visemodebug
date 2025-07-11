@@ -20,7 +20,8 @@ namespace VisemoServices.Services
                 Name = name,
                 Timer = timer,
                 ClassroomId = classroomId,
-                Instruction = instruction
+                Instruction = instruction,
+                IsStarted = false
             };
 
             _context.Activities.Add(activity);
@@ -49,6 +50,34 @@ namespace VisemoServices.Services
                 _context.Activities.Remove(activity);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<(bool Success, string Message)> StartActivity(int activityId)
+        {
+            var activity = await _context.Activities.FindAsync(activityId);
+            if (activity == null) return (false, "Activity not found");
+
+            if (activity.IsStarted)
+                return (false, "Activity is already started");
+
+            activity.IsStarted = true;
+            await _context.SaveChangesAsync();
+
+            return (true, "Activity started successfully");
+        }
+
+        public async Task<(bool Success, string Message)> StopActivity(int activityId)
+        {
+            var activity = await _context.Activities.FindAsync(activityId);
+            if (activity == null) return (false, "Activity not found");
+
+            if (!activity.IsStarted)
+                return (false, "Activity is not currently running");
+
+            activity.IsStarted = false;
+            await _context.SaveChangesAsync();
+
+            return (true, "Activity stopped successfully");
         }
     }
 
