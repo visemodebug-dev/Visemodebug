@@ -6,6 +6,7 @@ using VisemoServices.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using VisemoAlgorithm.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,7 +110,8 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 
 //  Dependency Injection
 builder.Services.AddScoped<IUserServices, UserServices>();
-builder.Services.AddHttpClient<IEmotionServices, EmotionServices>();
+builder.Services.AddHttpClient<EmotionDetection>();
+builder.Services.AddScoped<IEmotionServices, EmotionServices>();
 builder.Services.AddScoped<IAuthTokenService, AuthTokenService>();
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
