@@ -11,7 +11,7 @@ namespace VisemoServices.Services
         Task DeleteActivityAsync(int id);
         Task<(bool Success, string Message)> StartActivity(int activityId);
         Task<(bool Success, string Message)> StopActivity(int activityId);
-
+        Task<(bool Success, string Message)> SubmitSelfAssessment(int userId, int activityId, string reasons, bool hasConcerns);
     }
 
 }

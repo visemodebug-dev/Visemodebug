@@ -33,6 +33,22 @@ namespace VisemoAlgorithm.Data
             modelBuilder.Entity<UserEmotion>()
                 .Property(e => e.UserId)
                 .IsRequired();
+
+            modelBuilder.Entity<UserEmotion>()
+                .Property(e => e.ActivityId)
+                .IsRequired();
+
+            modelBuilder.Entity<SelfAssessment>()
+            .HasKey(s => s.Id);
+
+            // Simulate foreign key, but not enforced
+            modelBuilder.Entity<SelfAssessment>()
+                .Property(s => s.UserId)
+                .IsRequired();
+
+            modelBuilder.Entity<SelfAssessment>()
+                .Property(s => s.ActivityId)
+                .IsRequired();
         }
     }
 }
