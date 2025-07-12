@@ -1,37 +1,35 @@
-﻿using System.Text.Json;
-using System.Net.Http.Headers;
-
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using VisemoAlgorithm.Service;
+using VisemoServices.Data;
+using VisemoAlgorithm.Model;
+using VisemoAlgorithm.Data;
 
 namespace VisemoServices.Services
 {
     public class EmotionServices : IEmotionServices
     {
-        private readonly HttpClient _httpClient;
- 
-        public EmotionServices(HttpClient httpClient)
+        private readonly EmotionDetection _detection;
+        private readonly EmotionCategorizationService _categorization;
+        private readonly VisemoAlgoDbContext _dbContext;
+
+        public EmotionServices(EmotionDetection detection, EmotionCategorizationService categorization, VisemoAlgoDbContext dbContext)
         {
-            _httpClient = httpClient;
+            _detection = detection;
+            _categorization = categorization;
+            _dbContext = dbContext;
         }
 
-        public async Task<string> PredictEmotionAsync(IFormFile imageFile)
+        public async Task<(UserEmotion, string Emotion)> PredictEmotionAsync(IFormFile imageFile, int userId, int activityId)
         {
-            using var content = new MultipartFormDataContent();
-            using var stream = imageFile.OpenReadStream();
-            var fileContent = new StreamContent(stream);
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/png"); // Adjust if JPEG
+            // Step 1: Get the emotion from FastAPI
+            var emotion = await _detection.DetectEmotion(imageFile);
 
-            content.Add(fileContent, "file", imageFile.FileName);
+            // Step 2: Categorize and store in VisemoAlgoDb
+            await _categorization.CategorizeAndStore(emotion, userId, activityId);
 
-            var response = await _httpClient.PostAsync("http://localhost:8000/predict", content);
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("FASTAPI RESPONSE: " + json); // or use a logger
-            var prediction = JsonDocument.Parse(json);
-            var emotion = prediction.RootElement.GetProperty("emotion").ToString();
-
-            return emotion;
+            var userEmotion = await _dbContext.UserEmotions.FirstOrDefaultAsync(u => u.UserId == userId);
+            return (userEmotion, emotion);
         }
-
     }
 }

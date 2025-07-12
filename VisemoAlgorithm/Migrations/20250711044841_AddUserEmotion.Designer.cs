@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VisemoAlgorithm.Data;
 
@@ -10,9 +11,11 @@ using VisemoAlgorithm.Data;
 namespace VisemoAlgorithm.Migrations
 {
     [DbContext(typeof(VisemoAlgoDbContext))]
-    partial class VisemoAlgoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250711044841_AddUserEmotion")]
+    partial class AddUserEmotion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,9 +87,6 @@ namespace VisemoAlgorithm.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("ActivityId")
                         .HasColumnType("int");
 
                     b.Property<int>("NegativeEmotions")

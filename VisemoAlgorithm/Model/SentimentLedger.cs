@@ -10,7 +10,7 @@ namespace VisemoAlgorithm.Model
         public bool BuildResult { get; set; }
 
         
-        public string ImageCaptured { get; set; }
+        //public string ImageCaptured { get; set; }
 
         
         public string EmotionDetected { get; set; }
