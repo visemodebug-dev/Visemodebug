@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Activity } from "../../../../types/classroom";
 import { startActivity, stopActivity, getActivities } from "../../../../api/classroomApi";
+import PreAssessment from "./PreAssessment";
 
 interface ActivityDetailsProps {
   activity: Activity;
@@ -9,54 +10,55 @@ interface ActivityDetailsProps {
 }
 
 const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, role }) => {
-  const initialSeconds = (() => {
-    const [hh, mm, ss] = activity.timer.split(":").map(Number);
-    return hh * 3600 + mm * 60 + ss;
-  })();
-
-  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+  const [secondsLeft, setSecondsLeft] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isStartedByTeacher, setIsStartedByTeacher] = useState(false);
+  const [showPreAssessment, setShowPreAssessment] = useState(false);
 
-  // Poll teacher's status every 3s (only for student)
+  const parseTime = (timeStr: string) => {
+    const [hh, mm, ss] = timeStr.split(":").map(Number);
+    return hh * 3600 + mm * 60 + ss;
+  };
+
+  const initialSeconds = parseTime(activity.timer);
+
+  // Teacher start
+  const handleTeacherStart = async () => {
+    await startActivity(activity.id);
+    setIsStartedByTeacher(true);
+    setIsRunning(true);
+  };
+
+  const handleTeacherStop = async () => {
+    await stopActivity(activity.id);
+    setIsStartedByTeacher(false);
+    setSecondsLeft(initialSeconds);
+    setIsRunning(false);
+  };
+
+  const handleStudentStart = () => {
+    if (isStartedByTeacher) {
+    setShowPreAssessment(true);
+    }
+  };
+
+  // countdown
   useEffect(() => {
-    if (role !== "Student") return;
+    if (!isRunning) return;
 
-    const interval = setInterval(async () => {
-      try {
-        const activities: Activity[] = await getActivities(activity.classroomId);
-        const updated = activities.find(a => a.id === activity.id);
-
-        if (updated) {
-          setIsStartedByTeacher(updated.isStarted ?? false);
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setIsRunning(false);
+          return 0;
         }
-      } catch (err) {
-        console.error("Failed to fetch activity status", err);
-      }
-    }, 3000);
+        return prev - 1;
+      });
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [activity.id, activity.classroomId, role]);
-
-  // Countdown timer
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isRunning && secondsLeft > 0) {
-      interval = setInterval(() => {
-        setSecondsLeft(prev => prev - 1);
-      }, 1000);
-    }
-
-    if (secondsLeft === 0 && interval) {
-      clearInterval(interval);
-      setIsRunning(false);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isRunning, secondsLeft]);
+  }, [isRunning]);
 
   const formatTime = (totalSeconds: number) => {
     const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
@@ -65,33 +67,45 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, rol
     return `${hrs}:${mins}:${secs}`;
   };
 
-  const handleTeacherStart = async () => {
-  try {
-    console.log("Starting activity:", activity);
-    await startActivity(activity.id);
-    setIsStartedByTeacher(true);
-    setIsRunning(true);
-  } catch (err) {
-    console.error("Failed to start activity", err);
-  }
-};
+  // poll for students
+  useEffect(() => {
+    if (role !== "Student") return;
 
-const handleTeacherStop = async () => {
-  try {
-    await stopActivity(activity.id);
-    setIsStartedByTeacher(false);
-    setIsRunning(false);
-    setSecondsLeft(initialSeconds); // optional: reset timer
-  } catch (err) {
-    console.error("Failed to stop activity", err);
-  }
-};
+    const interval = setInterval(async () => {
+      try {
+        const activities: Activity[] = await getActivities(activity.classroomId);
+        const updated = activities.find((a) => a.id === activity.id);
 
-  const handleStudentStart = () => {
-    if (isStartedByTeacher) {
-      setIsRunning(true);
-    }
-  };
+        if (updated && updated.isStarted) {
+          setIsStartedByTeacher(true);
+          if (!isRunning) {
+            setSecondsLeft(parseTime(updated.timer));
+            setIsRunning(true);
+          }
+        } else {
+          setIsStartedByTeacher(false);
+          setIsRunning(false);
+        }
+      } catch (err) {
+        console.error("Failed to fetch activity status", err);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [activity.id, activity.classroomId, role, isRunning]);
+
+    if (showPreAssessment) {
+    return (
+      <PreAssessment
+        activityId={String(activity.id)}
+        onComplete={(hasConcerns, concerns) => {
+          console.log("PreAssessment Complete", { hasConcerns, concerns });
+          setShowPreAssessment(false);
+          setIsRunning(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="w-full">
@@ -114,12 +128,10 @@ const handleTeacherStop = async () => {
 
       <div className="p-4">
         <h1 className="text-2xl font-bold mb-2">{activity.name}</h1>
-        <p className="text-sm text-gray-600 mb-2">
-          Created: {new Date(activity.createdAt).toLocaleString()}
-        </p>
-        <p className="text-sm mb-2">Timer: {activity.timer}</p>
-        <p className="text-sm mb-4">
-          Current Countdown: <span className="font-mono">{formatTime(secondsLeft)}</span>
+        <p className="text-sm">Created: {new Date(activity.createdAt).toLocaleString()}</p>
+        <p className="text-sm">Timer: {activity.timer}</p>
+        <p className="text-sm">
+          Countdown: <span className="font-mono">{formatTime(secondsLeft)}</span>
         </p>
         <p className="mt-4">{activity.instruction || "No instructions provided."}</p>
 
@@ -127,17 +139,11 @@ const handleTeacherStop = async () => {
           {role === "Teacher" && (
             <>
               {!isStartedByTeacher ? (
-                <button
-                  onClick={handleTeacherStart}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                >
+                <button onClick={handleTeacherStart} className="px-4 py-2 bg-green-500 text-white rounded">
                   Start Activity
                 </button>
               ) : (
-                <button
-                  onClick={handleTeacherStop}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
+                <button onClick={handleTeacherStop} className="px-4 py-2 bg-red-500 text-white rounded">
                   Stop Activity
                 </button>
               )}
@@ -149,9 +155,7 @@ const handleTeacherStop = async () => {
               onClick={handleStudentStart}
               disabled={!isStartedByTeacher}
               className={`px-4 py-2 rounded text-white ${
-                isStartedByTeacher
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-gray-400 cursor-not-allowed"
+                isStartedByTeacher ? "bg-green-500" : "bg-gray-400"
               }`}
             >
               {isStartedByTeacher ? "Start Activity" : "Waiting for Teacher…"}
