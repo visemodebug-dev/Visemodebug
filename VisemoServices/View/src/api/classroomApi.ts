@@ -80,7 +80,6 @@ export const startActivity = (activityId: number) =>
   });
 
 export const submitPreAssessment = async ({
-  
   activityId,
   hasConcerns,
   reasons,
@@ -89,14 +88,30 @@ export const submitPreAssessment = async ({
   hasConcerns: boolean;
   reasons: string;
 }) => {
-    const token = localStorage.getItem("token");
-  return API.post(`/Activity/SubmitPreAssessment`, {
-    activityId,
-    hasConcerns,
-    reasons,
-  },{
-    headers: {
-        Authorization: `Bearer ${token}`
+  const token = localStorage.getItem("token");
+  const storedUserId = localStorage.getItem("userId");
+  if (!token) {
+    throw new Error("No token found — please log in again.");
+  }
+
+  if (!storedUserId) {
+    throw new Error("No userId found — please log in again.");
+  }
+
+  const userId = Number(storedUserId);
+
+  return API.post(
+    `/Activity/SubmitSelfAssessment`,
+    {
+      userId: Number(userId),
+      activityId,
+      hasConcerns,
+      reasons,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
-  });
+  );
 };
