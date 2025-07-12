@@ -78,3 +78,25 @@ export const startActivity = (activityId: number) =>
   API.post(`/Activity/StopActivity`,null,{
     params: { activityId },
   });
+
+export const submitPreAssessment = async ({
+  
+  activityId,
+  hasConcerns,
+  reasons,
+}: {
+  activityId: number | string;
+  hasConcerns: boolean;
+  reasons: string;
+}) => {
+    const token = localStorage.getItem("token");
+  return API.post(`/Activity/SubmitPreAssessment`, {
+    activityId,
+    hasConcerns,
+    reasons,
+  },{
+    headers: {
+        Authorization: `Bearer ${token}`
+    }
+  });
+};
