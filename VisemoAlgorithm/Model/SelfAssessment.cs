@@ -5,13 +5,13 @@ namespace VisemoAlgorithm.Model
 {
     public class SelfAssessment
     {
-        [Key, ForeignKey("SentimentLedger")]
-        public int LedgerActivityId { get; set; }
+        public int Id { get; set; }
 
-        public string Reason { get; set; }
+        public string Reasons { get; set; }
 
-        public bool IsAffected { get; set; }
+        public bool hasConcerns { get; set; }
 
-        public SentimentLedger SentimentLedger { get; set; }
+        public int UserId { get; set; }
+        public int ActivityId { get; set; }
     }
 }

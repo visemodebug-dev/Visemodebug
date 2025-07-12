@@ -47,6 +47,16 @@ namespace VisemoServices.Controllers
             return Ok(new { message = result.Message });
         }
 
+        [HttpPost("SubmitSelfAssessment")]
+        public async Task<IActionResult> SubmitSelfAssessment([FromBody] SubmitSelfAssessmentDto dto)
+        {
+            var result = await _activityService.SubmitSelfAssessment(dto.UserId, dto.ActivityId, dto.Reasons, dto.HasConcerns);
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
+
+            return Ok(new { message = result.Message });
+        }
+
     }
 
 }
