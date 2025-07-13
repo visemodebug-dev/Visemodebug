@@ -101,7 +101,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-//  Database setup
 // Database setup - VisemoDb (main database)
 var mainDbConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 var mainDbVersion = ServerVersion.AutoDetect(mainDbConnection);

@@ -45,7 +45,7 @@ namespace VisemoServices.Services
                 .ToListAsync();
         }
 
-        public async Task<Activity> GetActivityByIdAsync(int id)
+        public async Task<Activity> GetActivityById(int id)
         {
             return await _context.Activities.FindAsync(id);
         }
