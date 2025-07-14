@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Activity } from "../../../../types/classroom";
 import { startActivity, stopActivity, getActivities } from "../../../../api/classroomApi";
 import PreAssessment from "./PreAssessment";
+import CameraAccess from "../../student_dash/ActivityPage/CameraAccess";
 
 interface ActivityDetailsProps {
   activity: Activity;
@@ -13,7 +14,7 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, rol
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isStartedByTeacher, setIsStartedByTeacher] = useState(false);
-  const [showPreAssessment, setShowPreAssessment] = useState(false);
+  const [step, setStep] = useState<"details" | "pre" | "camera">("details");
 
   const parseTime = (timeStr: string) => {
     const [hh, mm, ss] = timeStr.split(":").map(Number);
@@ -22,7 +23,6 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, rol
 
   const initialSeconds = parseTime(activity.timer);
 
-  // Teacher start
   const handleTeacherStart = async () => {
     await startActivity(activity.id);
     setIsStartedByTeacher(true);
@@ -38,11 +38,10 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, rol
 
   const handleStudentStart = () => {
     if (isStartedByTeacher) {
-    setShowPreAssessment(true);
+      setStep("pre");
     }
   };
 
-  // countdown
   useEffect(() => {
     if (!isRunning) return;
 
@@ -60,14 +59,6 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, rol
     return () => clearInterval(interval);
   }, [isRunning]);
 
-  const formatTime = (totalSeconds: number) => {
-    const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-    const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-    const secs = String(totalSeconds % 60).padStart(2, "0");
-    return `${hrs}:${mins}:${secs}`;
-  };
-
-  // poll for students
   useEffect(() => {
     if (role !== "Student") return;
 
@@ -76,7 +67,7 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, rol
         const activities: Activity[] = await getActivities(activity.classroomId);
         const updated = activities.find((a) => a.id === activity.id);
 
-        if (updated && updated.isStarted) {
+        if (updated?.isStarted) {
           setIsStartedByTeacher(true);
           if (!isRunning) {
             setSecondsLeft(parseTime(updated.timer));
@@ -94,33 +85,36 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, rol
     return () => clearInterval(interval);
   }, [activity.id, activity.classroomId, role, isRunning]);
 
-    if (showPreAssessment) {
+  const formatTime = (totalSeconds: number) => {
+    const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+    const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+    const secs = String(totalSeconds % 60).padStart(2, "0");
+    return `${hrs}:${mins}:${secs}`;
+  };
+
+  // render PRE step
+  if (step === "pre") {
     return (
       <PreAssessment
         activityId={String(activity.id)}
-        onComplete={(hasConcerns, concerns) => {
-          console.log("PreAssessment Complete", { hasConcerns, concerns });
-          setShowPreAssessment(false);
-          setIsRunning(true);
-        }}
+        onComplete={() => setStep("camera")}
       />
     );
   }
 
+  // render CAMERA step
+  if (step === "camera") {
+  return <CameraAccess activityId={activity.id} />;
+}
+
+  // default: render DETAILS
   return (
     <div className="w-full">
       <button
         onClick={onBack}
         className="flex items-center text-black hover:underline mb-4"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
-          className="w-5 h-5 mr-2"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
         Back to Activities
@@ -137,17 +131,15 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({ activity, onBack, rol
 
         <div className="flex gap-2 mt-4">
           {role === "Teacher" && (
-            <>
-              {!isStartedByTeacher ? (
-                <button onClick={handleTeacherStart} className="px-4 py-2 bg-green-500 text-white rounded">
-                  Start Activity
-                </button>
-              ) : (
-                <button onClick={handleTeacherStop} className="px-4 py-2 bg-red-500 text-white rounded">
-                  Stop Activity
-                </button>
-              )}
-            </>
+            !isStartedByTeacher ? (
+              <button onClick={handleTeacherStart} className="px-4 py-2 bg-green-500 text-white rounded">
+                Start Activity
+              </button>
+            ) : (
+              <button onClick={handleTeacherStop} className="px-4 py-2 bg-red-500 text-white rounded">
+                Stop Activity
+              </button>
+            )
           )}
 
           {role === "Student" && (

@@ -29,6 +29,13 @@ namespace VisemoServices.Controllers
             return Ok(activities);
         }
 
+        [HttpGet("GetActivityById")]
+        public async Task<IActionResult> GetActivtyById(int activityId)
+        {
+            var activity = await _activityService.GetActivityById(activityId);
+            return Ok(activity);
+        }
+
         [HttpPost("StartActivity")]
         public async Task<IActionResult> StartActivity(int activityId)
         {

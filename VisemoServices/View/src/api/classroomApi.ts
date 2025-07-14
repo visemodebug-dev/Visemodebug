@@ -69,6 +69,13 @@ export const getActivities = async (classroomId: number) => {
   return response.data;
 };
 
+export const getActivityById = async (activityId: number) => {
+  const response = await API.get(`/Activity/GetActivityById`, {
+    params: { activityId },
+  });
+  return response.data;
+}
+
 export const startActivity = (activityId: number) =>
   API.post(`/Activity/StartActivity`, null, {
     params: { activityId },
