@@ -33,7 +33,7 @@ const PreAssessment: React.FC<PreAssessmentProps> = ({ onComplete, activityId })
 };
 
   return (
-    <div className="rounded-lg p-8 bg-white">
+    <div className="rounded-lg p-8">
       <h2 className="text-xl font-bold mb-6">Pre-Assessment</h2>
 
       <div className="mb-6">

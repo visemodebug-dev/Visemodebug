@@ -13,6 +13,7 @@ import ForgotPassword from './components/loginauth/ForgotPassword';
 import SetNewPassword from './components/loginauth/SetNewPassword';
 import StudentLandingPage from './components/dashboards/student_dash/StudentLandingPage';
 import TeacherLandingPage from './components/dashboards/teacher_dash/TeacherLandingPage';
+import CodeEditorPage from './components/dashboards/student_dash/ActivityPage/CodeEditorPage';
 
 function App() {
   return (
@@ -46,6 +47,9 @@ function App() {
 
     {/* Student Dashboard */}
     <Route path="/student-dashboard" element={<StudentLandingPage />} />
+    <Route path ="/editor" element={<CodeEditorPage/>}/>
+
+
   </Routes>
 </Router>
   );
