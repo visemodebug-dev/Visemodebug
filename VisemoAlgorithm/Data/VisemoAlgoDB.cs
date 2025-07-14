@@ -12,6 +12,7 @@ namespace VisemoAlgorithm.Data
         public DbSet<StudentSentimentSummary> StudentSentimentSummaries { get; set; }
         public DbSet<SelfAssessment> SelfAssessments { get; set; }
         public DbSet<UserEmotion> UserEmotions { get; set; }
+        public DbSet<BuildResult> BuildResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +49,18 @@ namespace VisemoAlgorithm.Data
 
             modelBuilder.Entity<SelfAssessment>()
                 .Property(s => s.ActivityId)
+                .IsRequired();
+
+            modelBuilder.Entity<BuildResult>()
+            .HasKey(b => b.Id);
+
+            // Simulate foreign key, but not enforced
+            modelBuilder.Entity<BuildResult>()
+                .Property(b => b.UserId)
+                .IsRequired();
+
+            modelBuilder.Entity<BuildResult>()
+                .Property(b => b.ActivityId)
                 .IsRequired();
         }
     }
