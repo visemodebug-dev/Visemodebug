@@ -122,3 +122,26 @@ export const submitPreAssessment = async ({
     }
   );
 };
+
+export const submitBuild = async ({
+  userId,
+  activityId,
+  isSuccessful
+}: {
+  userId: number;
+  activityId: number;
+  isSuccessful: 'success' | 'fail';
+}) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found — please log in again.");
+
+  return API.post(
+    `/Activity/SubmitBuild`,
+    { userId, activityId, isSuccessful },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};

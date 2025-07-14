@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Editor, {Monaco} from "@monaco-editor/react";
-import { getActivityById } from "../../../../api/classroomApi";
+import { getActivityById, submitBuild } from "../../../../api/classroomApi";
 
 interface CodeEditorProps {
   activityId?: number;
@@ -28,8 +28,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   isCapturing,
   stream,
   onSnapshot,
-  capturedImages,
-  onViewImages,
   instruction: initialInstruction,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -43,6 +41,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const [instruction, setInstruction] = useState<string>(
     initialInstruction || "Loading instructions..."
   );
+
+  const [videoReady, setVideoReady] = useState(false);
+
 
    useEffect(() => {
     if (!activityId) return;
@@ -62,30 +63,58 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   }, [activityId]);
 
   // Set up video stream once
-  useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
-      videoRef.current.play().catch(err => console.error('Error playing video:', err));
-    }
-  }, [stream]);
+useEffect(() => {
+  setVideoReady(false); // reset whenever stream changes
+  if (!stream) return;
+
+  const videoEl = videoRef.current;
+  if (!videoEl) return;
+
+  videoEl.srcObject = stream;
+
+  const handleCanPlay = () => {
+    console.log("✅ Video ready to capture!");
+    setVideoReady(true);
+  };
+
+  videoEl.addEventListener("canplay", handleCanPlay);
+  videoEl.play().catch(err => console.error("Error playing video", err));
+
+  return () => {
+    videoEl.pause();
+    videoEl.srcObject = null;
+    videoEl.removeEventListener("canplay", handleCanPlay);
+  };
+}, [stream]);
+
 
   // Capture logic
   useEffect(() => {
     let captureInterval: NodeJS.Timeout | null = null;
     let countdownInterval: NodeJS.Timeout | null = null;
   
-    const takeSnapshot = () => {
-      if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
-        const canvas = document.createElement('canvas');
-        canvas.width = videoRef.current.videoWidth;
-        canvas.height = videoRef.current.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(videoRef.current, 0, 0);
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        onSnapshot(imageData);
-        console.log('Snapshot taken at:', new Date().toLocaleTimeString());
-      }
-    };
+      const takeSnapshot = () => {
+        const video = videoRef.current;
+        if (
+          video &&
+          video.readyState >= video.HAVE_CURRENT_DATA
+        ) {
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return;
+
+          ctx.drawImage(video, 0, 0);
+          const imageData = canvas.toDataURL("image/jpeg", 0.8);
+          onSnapshot(imageData);
+
+          console.log("📸 Snapshot taken at:", new Date().toLocaleTimeString());
+        } else {
+          console.log("⏳ Video not ready for snapshot.");
+        }
+      };
+
   
     if (isCapturing && stream) {
       setTimeUntilNextCapture(30);
@@ -107,7 +136,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       if (captureInterval) clearInterval(captureInterval);
       if (countdownInterval) clearInterval(countdownInterval);
     };
-  }, [isCapturing, stream, onSnapshot]); 
+  }, [isCapturing, stream, onSnapshot, videoReady]); 
 
   const handleEditorWillMount = (monaco: any) => {
     monaco.editor.defineTheme('custom-dark', {
@@ -150,7 +179,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     setIsRunning(true);
     setError(null);
     setOutput("");
-    let buildStatus: 'success' | 'fail' | null = null;
+    let isSuccessful: 'success' | 'fail' = 'fail';
   
     try {
       const code = editorRef.current.getValue();
@@ -177,7 +206,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       console.log("API Response:", result);
   
       if (result.status?.id >= 6) {
-        buildStatus = 'fail';
+        isSuccessful = 'fail';
         switch (result.status.id) {
           case 6:
             setError(atob(result.compile_output || "Compilation error"));
@@ -195,26 +224,34 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             setError(result.status.description || "An error occurred");
         }
       } else if (result.stdout) {
-        buildStatus = 'success';
+        isSuccessful = 'success';
         setOutput(atob(result.stdout));
       } else if (result.stderr) {
-        buildStatus = 'fail';
+        isSuccessful = 'fail';
         setError(atob(result.stderr));
       } else if (result.compile_output) {
-        buildStatus = 'fail';
+        isSuccessful = 'fail';
         setError(atob(result.compile_output));
       }
 
-      console.log('Build Status:', buildStatus);
+      console.log('Build Status:', isSuccessful);
+
+       const userId = Number(localStorage.getItem("userId"));
+    if (!userId || !activityId) {
+      console.error("Missing userId or activityId");
+    } else {
+      await submitBuild({ userId, activityId, isSuccessful });
+      console.log("✅ Build status submitted to backend");
+    }
   
     } catch (err) {
-      buildStatus = 'fail';
+      isSuccessful = 'fail';
       console.error("Error:", err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsRunning(false);
 
-      console.log('Final Build Status:', buildStatus);
+      console.log('Final Build Status:', isSuccessful);
     }
   };
   
@@ -244,12 +281,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                   Next capture in: {timeUntilNextCapture}s
                 </span>
               </div>
-              <button
-                onClick={onViewImages}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm flex items-center space-x-2"
-              >
-                <span>View Captures ({capturedImages.length})</span>
-              </button>
             </div>
           )}
           <button 
