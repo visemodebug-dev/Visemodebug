@@ -64,6 +64,16 @@ namespace VisemoServices.Controllers
             return Ok(new { message = result.Message });
         }
 
+        [HttpPost("SubmitBuild")]
+        public async Task<IActionResult> SubmitBuild([FromBody] SaveBuildDto dto)
+        {
+            var result = await _activityService.SubmitBuild(dto.IsSuccessful, dto.UserId, dto.ActivityId);
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
+
+            return Ok(new { message = result.Message});
+        }
+
     }
 
 }

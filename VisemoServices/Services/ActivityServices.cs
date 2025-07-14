@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VisemoAlgorithm.Data;
+using VisemoAlgorithm.Model;
 using VisemoAlgorithm.Service;
 using VisemoServices.Data;
 using VisemoServices.Dtos.Activity;
@@ -13,12 +14,14 @@ namespace VisemoServices.Services
         private readonly DatabaseContext _context;
         private readonly VisemoAlgoDbContext _dbContext;
         private readonly SelfAssessmentService _selfAssessmentService;
+        private readonly CodeEditorServices _codeEditorServices;
 
-        public ActivityService(DatabaseContext context, VisemoAlgoDbContext dbContext, SelfAssessmentService selfAssessmentService)
+        public ActivityService(DatabaseContext context, VisemoAlgoDbContext dbContext, SelfAssessmentService selfAssessmentService, CodeEditorServices codeEditorServices)
         {
             _context = context;
             _dbContext = dbContext;
             _selfAssessmentService = selfAssessmentService;
+            _codeEditorServices = codeEditorServices;
         }
 
         public async Task<Activity> CreateActivityAsync(int classroomId, string name, TimeSpan timer, string instruction)
@@ -98,6 +101,19 @@ namespace VisemoServices.Services
             catch (Exception ex)
             {
                 return (false, $"Failed to save self-assessment: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Success, string Message)> SubmitBuild(bool isSuccessful, int userId, int activityId)
+        {
+            try
+            {
+                var result = await _codeEditorServices.SubmitBuild(isSuccessful, userId, activityId);
+                return (true, "Build saved successfully.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Failed to save build: {ex.Message}");
             }
         }
     }

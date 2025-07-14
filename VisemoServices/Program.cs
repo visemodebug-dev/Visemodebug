@@ -125,6 +125,7 @@ builder.Services.AddHttpClient<EmotionDetection>();
 builder.Services.AddScoped<IEmotionServices, EmotionServices>();
 builder.Services.AddScoped<EmotionCategorizationService>();
 builder.Services.AddScoped<SelfAssessmentService>();
+builder.Services.AddScoped<CodeEditorServices>();
 builder.Services.AddScoped<IAuthTokenService, AuthTokenService>();
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
