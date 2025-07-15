@@ -74,5 +74,13 @@ namespace VisemoServices.Controllers
             return Ok(new { message = result.Message});
         }
 
+        [HttpPost("SubmitStudentCode")]
+        public async Task<IActionResult> SubmitStudentCode([FromBody] SubmitActivitiesDto dto)
+        {
+            var result = await _activityService.SubmitStudentCode(dto.Code, dto.UserId, dto.ActivityId);
+            return Ok(result);
+        }
+
+
     }
 }

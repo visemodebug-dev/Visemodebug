@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 using VisemoAlgorithm.Data;
 using VisemoAlgorithm.Model;
 using VisemoAlgorithm.Service;
@@ -115,6 +116,21 @@ namespace VisemoServices.Services
             {
                 return (false, $"Failed to save build: {ex.Message}");
             }
+        }
+
+        public async Task<SubmittedActivities> SubmitStudentCode(string Code, int userId, int activityId)
+        {
+            var submittedActivity = new SubmittedActivities
+            {
+                code = Code,
+                UserId = userId,
+                ActivityId = activityId
+            };
+
+            _context.SubmittedActivities.Add(submittedActivity);
+            await _context.SaveChangesAsync();
+
+            return submittedActivity;
         }
     }
 

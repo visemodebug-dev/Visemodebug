@@ -13,6 +13,7 @@ namespace VisemoServices.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Classroom> Classrooms { get; set; }
         public DbSet<Activity> Activities { get; set; }
+        public DbSet<SubmittedActivities> SubmittedActivities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
