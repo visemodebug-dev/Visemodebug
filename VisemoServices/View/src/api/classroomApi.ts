@@ -180,3 +180,26 @@ userId: number,
     },
   });
 };
+
+export const submitStudentCode = async ({
+  userId,
+  activityId,
+  code
+}: {
+  userId: number;
+  activityId: number;
+  code: string;
+}) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found — please log in");
+
+  return API.post(
+    `/activity/SubmitStudentCode`,
+    { userId, activityId, code },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
