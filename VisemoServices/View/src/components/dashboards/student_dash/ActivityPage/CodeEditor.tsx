@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Editor, {Monaco} from "@monaco-editor/react";
 import { getActivityById, submitBuild } from "../../../../api/classroomApi";
+import { submitPicture } from "../../../../api/classroomApi";
 
 interface CodeEditorProps {
   activityId?: number;
@@ -93,7 +94,7 @@ useEffect(() => {
     let captureInterval: NodeJS.Timeout | null = null;
     let countdownInterval: NodeJS.Timeout | null = null;
   
-      const takeSnapshot = () => {
+      const takeSnapshot = async () => {
         const video = videoRef.current;
         if (
           video &&
@@ -110,6 +111,23 @@ useEffect(() => {
           onSnapshot(imageData);
 
           console.log("📸 Snapshot taken at:", new Date().toLocaleTimeString());
+
+          const userId = Number(localStorage.getItem("userId"));
+        if (!userId || !activityId) {
+          console.error("Missing userId or activityId for snapshot");
+          return;
+        }
+
+        try {
+          await submitPicture({
+            image: imageData,
+            userId,
+            activityId,
+          });
+          console.log("Image sent to DetectEmotion Endpoint");
+        } catch (err) {
+          console.log("Image failed to submit picture: ", err)
+        }
         } else {
           console.log("⏳ Video not ready for snapshot.");
         }
@@ -136,7 +154,7 @@ useEffect(() => {
       if (captureInterval) clearInterval(captureInterval);
       if (countdownInterval) clearInterval(countdownInterval);
     };
-  }, [isCapturing, stream, onSnapshot, videoReady]); 
+  }, [isCapturing, stream, onSnapshot, videoReady, activityId]); 
 
   const handleEditorWillMount = (monaco: any) => {
     monaco.editor.defineTheme('custom-dark', {
@@ -179,7 +197,8 @@ useEffect(() => {
     setIsRunning(true);
     setError(null);
     setOutput("");
-    let isSuccessful: 'success' | 'fail' = 'fail';
+    let isSuccessful= false;
+
   
     try {
       const code = editorRef.current.getValue();
@@ -206,7 +225,7 @@ useEffect(() => {
       console.log("API Response:", result);
   
       if (result.status?.id >= 6) {
-        isSuccessful = 'fail';
+        isSuccessful = false;
         switch (result.status.id) {
           case 6:
             setError(atob(result.compile_output || "Compilation error"));
@@ -224,13 +243,13 @@ useEffect(() => {
             setError(result.status.description || "An error occurred");
         }
       } else if (result.stdout) {
-        isSuccessful = 'success';
+        isSuccessful = true;
         setOutput(atob(result.stdout));
       } else if (result.stderr) {
-        isSuccessful = 'fail';
+        isSuccessful = false;
         setError(atob(result.stderr));
       } else if (result.compile_output) {
-        isSuccessful = 'fail';
+        isSuccessful = false;
         setError(atob(result.compile_output));
       }
 
@@ -245,7 +264,7 @@ useEffect(() => {
     }
   
     } catch (err) {
-      isSuccessful = 'fail';
+      isSuccessful = false;
       console.error("Error:", err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

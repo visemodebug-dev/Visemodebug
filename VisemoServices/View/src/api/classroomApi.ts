@@ -124,24 +124,59 @@ export const submitPreAssessment = async ({
 };
 
 export const submitBuild = async ({
+  isSuccessful,
   userId,
   activityId,
-  isSuccessful
 }: {
+  isSuccessful: boolean;
   userId: number;
   activityId: number;
-  isSuccessful: 'success' | 'fail';
 }) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("No token found — please log in again.");
 
   return API.post(
     `/Activity/SubmitBuild`,
-    { userId, activityId, isSuccessful },
+    { isSuccessful, userId, activityId},
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     }
   );
+};
+
+export const submitPicture = async ({
+  image,
+  activityId,
+  userId,
+}: {
+image: string,
+activityId: number,
+userId: number,
+}) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No Token Found - Please log in again");
+
+    const formData = new FormData();
+  formData.append("activityId", activityId.toString());
+  formData.append("userId", userId.toString());
+
+   // Convert base64 to Blob explicitly with type
+  const byteString = atob(image.split(',')[1]);
+  const mimeString = image.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  const blob = new Blob([ab], { type: mimeString });
+
+  formData.append("image", blob, "snapshot.jpg");
+
+  return API.post(`/emotion/DetectEmotion`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
