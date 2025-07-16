@@ -7,20 +7,15 @@ namespace VisemoAlgorithm.Data
     public class VisemoAlgoDbContext : DbContext
     {
         public VisemoAlgoDbContext(DbContextOptions<VisemoAlgoDbContext> options) : base(options) { }
-
-        public DbSet<SentimentLedger> SentimentLedgers { get; set; }
-        public DbSet<StudentSentimentSummary> StudentSentimentSummaries { get; set; }
         public DbSet<SelfAssessment> SelfAssessments { get; set; }
         public DbSet<UserEmotion> UserEmotions { get; set; }
         public DbSet<BuildResult> BuildResults { get; set; }
+        public DbSet<EmotionLog> EmotionLogs { get; set; }
+        public DbSet<SentimentReport> SentimentReports { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SentimentLedger>()
-                .ToTable("SentimentLedger");
-
-            modelBuilder.Entity<StudentSentimentSummary>()
-                .ToTable("StudentSentimentSummary");
 
             modelBuilder.Entity<SelfAssessment>()
                 .ToTable("SelfAssessment");
