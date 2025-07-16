@@ -22,6 +22,13 @@ namespace VisemoServices.Controllers
             return Ok(activity);
         }
 
+        [HttpDelete("DeleteActivity")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _activityService.DeleteActivityAsync(id);
+            return NoContent();
+        }
+
         [HttpGet("GetActivities")]
         public async Task<IActionResult> GetByClassroom(int classroomId)
         {
@@ -80,7 +87,5 @@ namespace VisemoServices.Controllers
             var result = await _activityService.SubmitStudentCode(dto.Code, dto.UserId, dto.ActivityId);
             return Ok(result);
         }
-
-
     }
 }
