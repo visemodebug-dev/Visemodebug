@@ -60,6 +60,17 @@ export const createActivity = async (
   });
 };
 
+// Delete Activity
+export const deleteActivity = async (activityId: number) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token");
+
+  return API.delete(`/Activity/DeleteActivity`, {
+    params: { id: activityId },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
 
 // Get Activities
 export const getActivities = async (classroomId: number) => {

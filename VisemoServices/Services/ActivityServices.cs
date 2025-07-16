@@ -44,6 +44,16 @@ namespace VisemoServices.Services
             return activity;
         }
 
+        public async Task DeleteActivity( int activityId)
+        {
+            var activity = await _context.Activities.FindAsync(activityId);
+            if (activity != null)
+            {
+                _context.Activities.Remove(activity);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task<IEnumerable<Activity>> GetActivitiesByClassroomAsync(int classroomId)
         {
             return await _context.Activities
