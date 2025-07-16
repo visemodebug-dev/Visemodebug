@@ -16,13 +16,15 @@ namespace VisemoServices.Services
         private readonly VisemoAlgoDbContext _dbContext;
         private readonly SelfAssessmentService _selfAssessmentService;
         private readonly CodeEditorServices _codeEditorServices;
+        private readonly SentimentScoringService _sentimentScoringService;
 
-        public ActivityService(DatabaseContext context, VisemoAlgoDbContext dbContext, SelfAssessmentService selfAssessmentService, CodeEditorServices codeEditorServices)
+        public ActivityService(DatabaseContext context, VisemoAlgoDbContext dbContext, SelfAssessmentService selfAssessmentService, CodeEditorServices codeEditorServices, SentimentScoringService sentimentScoringService)
         {
             _context = context;
             _dbContext = dbContext;
             _selfAssessmentService = selfAssessmentService;
             _codeEditorServices = codeEditorServices;
+            _sentimentScoringService = sentimentScoringService;
         }
 
         public async Task<Activity> CreateActivityAsync(int classroomId, string name, TimeSpan timer, string instruction)
@@ -131,6 +133,11 @@ namespace VisemoServices.Services
             await _context.SaveChangesAsync();
 
             return submittedActivity;
+        }
+
+        public async Task<SentimentReport> GenerateSentimentReport(int userId, int activityId)
+        {
+            return await _sentimentScoringService.GenerateSentimentReport(userId, activityId);
         }
     }
 

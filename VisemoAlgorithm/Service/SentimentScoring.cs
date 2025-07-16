@@ -13,7 +13,7 @@ namespace VisemoAlgorithm.Service
             _context = context;
         }
 
-        public async Task<SentimentReport> GenerateSentimentReportAsync(int userId, int activityId)
+        public async Task<SentimentReport> GenerateSentimentReport(int userId, int activityId)
         {
             var emotions = await _context.UserEmotions.FirstOrDefaultAsync(e => e.UserId == userId && e.ActivityId == activityId);
             var builds = await _context.BuildResults

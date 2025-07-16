@@ -81,6 +81,20 @@ namespace VisemoServices.Controllers
             return Ok(result);
         }
 
+        [HttpPost("GenerateReport")]
+        public async Task<IActionResult> GenerateSentimentReport([FromQuery] int userId, [FromQuery] int activityId)
+        {
+            try
+            {
+                var report = await _activityService.GenerateSentimentReport(userId, activityId);
+                return Ok(report);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while generating the report: {ex.Message}");
+            }
+        }
+
 
     }
 }

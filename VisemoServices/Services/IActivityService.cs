@@ -1,4 +1,5 @@
-﻿using VisemoServices.Model;
+﻿using VisemoAlgorithm.Model;
+using VisemoServices.Model;
 namespace VisemoServices.Services
 
 
@@ -14,6 +15,7 @@ namespace VisemoServices.Services
         Task<(bool Success, string Message)> SubmitSelfAssessment(int userId, int activityId, string reasons, bool hasConcerns);
         Task<(bool Success, string Message)> SubmitBuild(bool isSuccessful, int userId, int activityId);
         Task<SubmittedActivities> SubmitStudentCode(string Code, int userId, int activityId);
+        Task<SentimentReport> GenerateSentimentReport(int userId, int activityId);
     }
 
 }
