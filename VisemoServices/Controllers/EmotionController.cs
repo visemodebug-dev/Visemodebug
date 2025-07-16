@@ -31,5 +31,12 @@ namespace VisemoServices.Controllers
             });
         }
 
+        [HttpGet("AggregateEmotions")]
+        public async Task<IActionResult> AggregateEmotions([FromQuery] int activityId)
+        {
+            var result = await _emotionServices.AggregateEmotions(activityId);
+            return Ok(result);
+        }
+
     }
 }
