@@ -38,5 +38,23 @@ namespace VisemoServices.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetEmotionsPerStudent")]
+        public async Task<IActionResult> GetEmotionsPerStudent([FromQuery] int userId, [FromQuery] int activityId)
+        {
+            var (positive, negative, neutral) = await _emotionServices.GetEmotionsPerStudent(userId, activityId);
+
+            return Ok(new
+            {
+                userId,
+                activityId,
+                emotions = new
+                {
+                    positive,
+                    negative,
+                    neutral
+                }
+            });
+        }
+
     }
 }

@@ -30,6 +30,23 @@ namespace VisemoAlgorithm.Service
                 TotalNegativeEmotions = totalNegative,
                 TotalNeutralEmotions = totalNeutral
             };
-        }   
+        }
+
+        public async Task<(int positive, int negative, int neutral)> GetEmotionsPerStudent(int userId, int activityId)
+        {
+            var userEmotion = await _context.UserEmotions
+                .FirstOrDefaultAsync(e => e.UserId == userId && e.ActivityId == activityId);
+
+            if (userEmotion == null)
+            {
+                return (0, 0, 0); // No emotion data recorded yet
+            }
+
+            return (
+                userEmotion.PositiveEmotions,
+                userEmotion.NegativeEmotions,
+                userEmotion.NeutralEmotions
+            );
+        }
     }
 }

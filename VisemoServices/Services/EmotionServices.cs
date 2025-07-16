@@ -39,5 +39,10 @@ namespace VisemoServices.Services
         {
             return await _handler.AggregateEmotions(activityId);
         }
+
+        public async Task<(int positive, int negative, int neutral)> GetEmotionsPerStudent(int userId, int activityId)
+        {
+            return await _handler.GetEmotionsPerStudent(userId, activityId);
+        }
     }
 }
