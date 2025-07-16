@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VisemoAlgorithm.Data;
 
@@ -10,9 +11,11 @@ using VisemoAlgorithm.Data;
 namespace VisemoAlgorithm.Migrations
 {
     [DbContext(typeof(VisemoAlgoDbContext))]
-    partial class VisemoAlgoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716003915_CreatedEmotionLog")]
+    partial class CreatedEmotionLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,42 +88,6 @@ namespace VisemoAlgorithm.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SelfAssessment", (string)null);
-                });
-
-            modelBuilder.Entity("VisemoAlgorithm.Model.SentimentReport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("ActivityId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("AverageEmotionScore")
-                        .HasColumnType("double");
-
-                    b.Property<double>("BuildSuccessRate")
-                        .HasColumnType("double");
-
-                    b.Property<double>("FinalEmotionScore")
-                        .HasColumnType("double");
-
-                    b.Property<string>("Interpretation")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("SelfAssessmentPenalty")
-                        .HasColumnType("int");
-
-                    b.Property<double>("SentimentScore")
-                        .HasColumnType("double");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SentimentReports");
                 });
 
             modelBuilder.Entity("VisemoAlgorithm.Model.UserEmotion", b =>

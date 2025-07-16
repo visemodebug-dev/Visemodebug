@@ -50,6 +50,14 @@ namespace VisemoAlgorithm.Service
                     break; // unknown emotion
             }
 
+            var log = new EmotionLog
+            {
+                UserId = userId,
+                ActivityId = activityId,
+                DetectedEmotion = emotion,
+                Timestamp = DateTime.UtcNow
+            };
+
             await _context.SaveChangesAsync();
         }
     }
