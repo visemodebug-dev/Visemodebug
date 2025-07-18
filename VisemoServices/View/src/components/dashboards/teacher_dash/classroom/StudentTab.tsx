@@ -9,7 +9,7 @@ interface StudentTabProps {
 
 const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/Classroom";
 
-const StudentTab: React.FC<StudentTabProps> = ({classroomId}) =>  {
+const StudentTab: React.FC<StudentTabProps> = ({classroomId, role}) =>  {
   const [showModal, setShowModal] = useState(false);
   const [students, setStudents] = useState<{ idNumber: string; name: string }[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -80,6 +80,7 @@ const StudentTab: React.FC<StudentTabProps> = ({classroomId}) =>  {
         <div>
             <div className="flex justify-between items-center my-6"> 
                 <div className="font-bold text-lg">Students</div>
+                {role === "Teacher" && (
                 <button 
                 onClick={() => setShowModal(true)}
                 className="bg-gray-300 px-3 py-1 rounded flex items-center gap-2">
@@ -93,6 +94,7 @@ const StudentTab: React.FC<StudentTabProps> = ({classroomId}) =>  {
                 </svg>
                 Add Student
                 </button>
+                )}
             </div>
 
             {/* List of students */}
@@ -106,6 +108,7 @@ const StudentTab: React.FC<StudentTabProps> = ({classroomId}) =>  {
               <span className="w-3 h-3 bg-black rounded-full"></span>
               <span>{student.name} ({student.idNumber})</span>
             </div>
+            {role === "Teacher" && (
             <button
               onClick={() => confirmRemoveStudent(student)}
               className="hover:text-black"
@@ -125,6 +128,7 @@ const StudentTab: React.FC<StudentTabProps> = ({classroomId}) =>  {
             />
           </svg>
           </button>
+        )}
         </div>
       ))}
     </div>

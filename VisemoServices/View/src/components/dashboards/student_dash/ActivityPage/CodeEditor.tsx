@@ -1,17 +1,25 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import Editor, { Monaco } from "@monaco-editor/react";
-import { getActivityById, submitBuild, submitPicture, submitStudentCode } from "../../../../api/classroomApi";
+import Editor from "@monaco-editor/react";
+import * as monacoEditor from "monaco-editor";
+import {
+  getActivityById,
+  submitBuild,
+  submitPicture,
+  submitStudentCode,
+} from "../../../../api/classroomApi";
 
 interface CodeEditorProps {
   activityId?: number;
   classroomId?: number;
-  isCapturing: boolean;
-  stream: MediaStream | null;
-  onSnapshot: (imageData: string) => void;
-  capturedImages: Array<{ data: string; timestamp: string }>;
-  onViewImages: () => void;
+  isCapturing?: boolean;
+  stream?: MediaStream | null;
+  onSnapshot?: (imageData: string) => void;
+  capturedImages?: Array<{ data: string; timestamp: string }>;
+  onViewImages?: () => void;
   runBuild?: "success" | "fail" | null;
   instruction?: string;
+  readonly?: boolean;
+  submittedCode?: string;
 }
 
 const DEFAULT_CODE = `using System;
@@ -26,61 +34,38 @@ public class Program
 
 const CodeEditor: React.FC<CodeEditorProps> = ({
   activityId,
-  isCapturing,
-  stream,
-  onSnapshot,
+  isCapturing = false,
+  stream = null,
+  onSnapshot = () => {},
   instruction: initialInstruction,
+  readonly = false,
+  submittedCode,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [timeUntilNextCapture, setTimeUntilNextCapture] = useState(30);
-  const [code, setCode] = useState(DEFAULT_CODE);
+  const [code, setCode] = useState(submittedCode || DEFAULT_CODE);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const editorRef = useRef<any>(null);
-  const monacoRef = useRef<Monaco | null>(null);
-  const [instruction, setInstruction] = useState<string>(
-    initialInstruction || "Loading instructions..."
-  );
+  const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor | null>(null);
+  const [instruction, setInstruction] = useState(initialInstruction || "Loading instructions...");
   const [videoReady, setVideoReady] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
-const handleSubmitFinalCode = async () => {
-  const userId = Number(localStorage.getItem("userId"));
-  if (!userId || !activityId) {
-    console.error("Missing userId or activityId");
-    return;
-  }
-
-  const codeToSubmit = editorRef.current?.getValue();
-  if (!codeToSubmit) {
-    console.error("No code to submit");
-    return;
-  }
-
-  try {
-    await submitStudentCode({ userId, activityId, code: codeToSubmit });
-    console.log("✅ Final code submitted to backend");
-    setShowSubmitModal(false);
-  } catch (err) {
-    console.error("❌ Failed to submit code:", err);
-  }
-};
-
+  useEffect(() => {
+    if (submittedCode) setCode(submittedCode);
+  }, [submittedCode]);
 
   useEffect(() => {
     if (!activityId) return;
-
     const fetchActivity = async () => {
       try {
-        const activity = await getActivityById(Number(activityId));
+        const activity = await getActivityById(activityId);
         setInstruction(activity.instruction || "No instructions provided.");
-      } catch (err) {
-        console.error("Failed to fetch activity", err);
+      } catch {
         setInstruction("Failed to load instructions.");
       }
     };
-
     fetchActivity();
   }, [activityId]);
 
@@ -93,12 +78,9 @@ const handleSubmitFinalCode = async () => {
 
     videoEl.srcObject = stream;
 
-    const handleCanPlay = () => {
-      setVideoReady(true);
-    };
-
+    const handleCanPlay = () => setVideoReady(true);
     videoEl.addEventListener("canplay", handleCanPlay);
-    videoEl.play().catch((err) => console.error("Error playing video", err));
+    videoEl.play().catch(console.error);
 
     return () => {
       videoEl.pause();
@@ -107,40 +89,29 @@ const handleSubmitFinalCode = async () => {
     };
   }, [stream]);
 
-const takeAndSubmitSnapshot = useCallback(async () => {
-  const video = videoRef.current;
-  if (!video || video.readyState < video.HAVE_CURRENT_DATA) {
-    console.log("⏳ Video not ready for snapshot.");
-    return;
-  }
+  const takeAndSubmitSnapshot = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video || video.readyState < video.HAVE_CURRENT_DATA) return;
 
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  ctx.drawImage(video, 0, 0);
-  const imageData = canvas.toDataURL("image/jpeg", 0.8);
-  onSnapshot(imageData);
+    ctx.drawImage(video, 0, 0);
+    const imageData = canvas.toDataURL("image/jpeg", 0.8);
+    onSnapshot(imageData);
 
-  const userId = Number(localStorage.getItem("userId"));
-  if (!userId || !activityId) {
-    console.error("Missing userId or activityId for snapshot");
-    return;
-  }
+    const userId = Number(localStorage.getItem("userId"));
+    if (!userId || !activityId) return;
 
-  try {
-    await submitPicture({
-      image: imageData,
-      userId,
-      activityId,
-    });
-    console.log("✅ Image sent to DetectEmotion endpoint.");
-  } catch (err) {
-    console.error("❌ Failed to submit picture:", err);
-  }
-}, [onSnapshot, activityId]);
+    try {
+      await submitPicture({ image: imageData, userId, activityId });
+    } catch (err) {
+      console.error("❌ Failed to submit picture:", err);
+    }
+  }, [onSnapshot, activityId]);
 
   useEffect(() => {
     let captureInterval: NodeJS.Timeout | null = null;
@@ -152,10 +123,7 @@ const takeAndSubmitSnapshot = useCallback(async () => {
       captureInterval = setInterval(takeAndSubmitSnapshot, 30000);
 
       countdownInterval = setInterval(() => {
-        setTimeUntilNextCapture((prev) => {
-          if (prev <= 1) return 30;
-          return prev - 1;
-        });
+        setTimeUntilNextCapture((prev) => (prev <= 1 ? 30 : prev - 1));
       }, 1000);
     }
 
@@ -163,9 +131,9 @@ const takeAndSubmitSnapshot = useCallback(async () => {
       if (captureInterval) clearInterval(captureInterval);
       if (countdownInterval) clearInterval(countdownInterval);
     };
-  },[isCapturing, stream, takeAndSubmitSnapshot, videoReady]);
+  }, [isCapturing, stream, takeAndSubmitSnapshot, videoReady]);
 
-  const handleEditorWillMount = (monaco: any) => {
+  const handleEditorWillMount = (monaco: typeof monacoEditor) => {
     monaco.editor.defineTheme("custom-dark", {
       base: "vs-dark",
       inherit: true,
@@ -178,16 +146,19 @@ const takeAndSubmitSnapshot = useCallback(async () => {
       colors: {
         "editor.background": "#1E1E1E",
         "editor.foreground": "#D4D4D4",
-        "editor.lineHighlightBackground": "#1E1E1E",
-        "editorLineNumber.foreground": "#6B7280",
-        "editorLineNumber.activeForeground": "#6B7280",
       },
     });
   };
 
-  const handleEditorDidMount = (editor: any, monaco: Monaco) => {
+  const handleEditorDidMount = (
+    editor: monacoEditor.editor.IStandaloneCodeEditor,
+    monaco: typeof monacoEditor
+  ) => {
     editorRef.current = editor;
-    monacoRef.current = monaco;
+
+    if (readonly) {
+      editor.updateOptions({ readOnly: true });
+    }
 
     editor.addAction({
       id: "run-code",
@@ -206,67 +177,65 @@ const takeAndSubmitSnapshot = useCallback(async () => {
     let isSuccessful = false;
 
     try {
-      const code = editorRef.current.getValue();
-
-      const options = {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "X-RapidAPI-Key": "04bbcf18ecmsh2ef5d6c16bb95bdp180920jsn4bfff42108cb",
-          "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-        },
-        body: JSON.stringify({
-          language_id: 51,
-          source_code: btoa(code),
-          stdin: "",
-          base64_encoded: true,
-        }),
-      };
+      const code = editorRef.current?.getValue() || "";
 
       const response = await fetch(
         "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true",
-        options
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "X-RapidAPI-Key": "your-api-key",
+            "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+          },
+          body: JSON.stringify({
+            language_id: 51,
+            source_code: btoa(code),
+            stdin: "",
+            base64_encoded: true,
+          }),
+        }
       );
+
       const result = await response.json();
 
-      if (result.status?.id >= 6) {
-        isSuccessful = false;
-        switch (result.status.id) {
-          case 6:
-            setError(atob(result.compile_output || "Compilation error"));
-            break;
-          case 7:
-            setError("Time limit exceeded");
-            break;
-          case 8:
-            setError("Memory limit exceeded");
-            break;
-          case 11:
-            setError(atob(result.stderr || "Runtime error"));
-            break;
-          default:
-            setError(result.status.description || "An error occurred");
-        }
-      } else if (result.stdout) {
+      if (result.stdout) {
         isSuccessful = true;
         setOutput(atob(result.stdout));
       } else {
         isSuccessful = false;
+        setError(result.status?.description || "Error occurred");
       }
 
       const userId = Number(localStorage.getItem("userId"));
-      if (!userId || !activityId) {
-        console.error("Missing userId or activityId");
-      } else {
-        await submitBuild({ userId, activityId, isSuccessful });
-        console.log("✅ Build status submitted to backend");
-      }
-    } catch (err) {
-      isSuccessful = false;
-      console.error("Error:", err);
-      setError(err instanceof Error ? err.message : "An error occurred");
+      if (!userId || !activityId) return;
+
+      await submitBuild({ userId, activityId, isSuccessful });
+    } catch {
+      setError("An error occurred");
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  const handleSubmitFinalCode = async () => {
+    const userId = Number(localStorage.getItem("userId"));
+    if (!userId || !activityId) return;
+
+    const codeToSubmit = editorRef.current?.getValue();
+    if (!codeToSubmit) return;
+
+    try {
+      await submitStudentCode({ userId, activityId, code: codeToSubmit });
+      setShowSubmitModal(false);
+
+      if (videoRef.current?.srcObject) {
+        (videoRef.current.srcObject as MediaStream).getTracks().forEach((track) => track.stop());
+      }
+
+      window.location.href = "/student-dashboard";
+    } catch (err) {
+      console.error("❌ Failed to submit code:", err);
     }
   };
 
@@ -286,49 +255,51 @@ const takeAndSubmitSnapshot = useCallback(async () => {
               </span>
             </div>
           )}
-         <button
-    onClick={handleRunCode}
-    disabled={isRunning}
-    className={`px-4 py-2 rounded flex items-center space-x-2 ${
-      isRunning
-        ? "bg-gray-500 cursor-not-allowed"
-        : "bg-orange-500 hover:bg-orange-600"
-    }`}
-  >
-    {isRunning ? "Running..." : "Run"}
-  </button>
 
-  <button
-    onClick={() => setShowSubmitModal(true)}
-    className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded"
-  >
-    Submit
-  </button>
-</div>
+          <button
+            onClick={handleRunCode}
+            disabled={isRunning}
+            className={`px-4 py-2 rounded flex items-center space-x-2 ${
+              isRunning
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-orange-500 hover:bg-orange-600"
+            }`}
+          >
+            {isRunning ? "Running..." : "Run"}
+          </button>
 
-    {/* Confirmation Modal */}
-    {showSubmitModal && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div className="bg-white text-black p-6 rounded-lg shadow-lg">
-          <h3 className="text-lg font-bold mb-4">Are you sure you want to submit?</h3>
-          <div className="flex justify-end gap-2">
+          {!readonly && (
             <button
-              onClick={() => setShowSubmitModal(false)}
-              className="px-4 py-2 bg-gray-300 rounded"
+              onClick={() => setShowSubmitModal(true)}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded"
             >
-              No
+              Submit
             </button>
-            <button
-              onClick={handleSubmitFinalCode}
-              className="px-4 py-2 bg-green-500 text-white rounded"
-            >
-              Yes
-            </button>
-          </div>
+          )}
         </div>
       </div>
-    )}
-    </div>
+
+      {showSubmitModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white text-black p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-bold mb-4">Are you sure you want to submit?</h3>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowSubmitModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                No
+              </button>
+              <button
+                onClick={handleSubmitFinalCode}
+                className="px-4 py-2 bg-green-500 text-white rounded"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-[2fr,1fr] h-[calc(100vh-64px)]">
         <div className="h-full border-r border-[#2d2d2d]">
@@ -337,7 +308,9 @@ const takeAndSubmitSnapshot = useCallback(async () => {
             defaultLanguage="csharp"
             theme="custom-dark"
             value={code}
-            onChange={(value) => setCode(value || "")}
+            onChange={(value) => {
+              if (!readonly) setCode(value || "");
+            }}
             beforeMount={handleEditorWillMount}
             onMount={handleEditorDidMount}
           />
@@ -359,9 +332,7 @@ const takeAndSubmitSnapshot = useCallback(async () => {
               ) : output ? (
                 <div className="text-green-400 whitespace-pre-wrap">{output}</div>
               ) : (
-                <div className="text-gray-500">
-                  Program output will appear here...
-                </div>
+                <div className="text-gray-500">Program output will appear here…</div>
               )}
             </div>
           </div>
