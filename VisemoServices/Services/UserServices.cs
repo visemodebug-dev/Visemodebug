@@ -25,9 +25,9 @@ namespace VisemoServices.Services
             return user;
         }
 
-        public async Task<User?> CheckUser(string email)
+        public async Task<User?> CheckUser(int userId)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
 
         public async Task<User> SignUp(UserSignupDto dto, IFormFile idImage, IWebHostEnvironment env)

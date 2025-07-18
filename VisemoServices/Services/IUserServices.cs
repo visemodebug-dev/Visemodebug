@@ -8,6 +8,6 @@ namespace VisemoServices.Services
     {
         Task<User?> Login(string email, string password);
         Task<User> SignUp(UserSignupDto userDto, IFormFile idImage, IWebHostEnvironment env);
-        Task<User?> CheckUser(string email);
+        Task<User?> CheckUser(int userId);
     }
 }

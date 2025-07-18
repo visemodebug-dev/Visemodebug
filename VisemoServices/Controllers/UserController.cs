@@ -95,9 +95,9 @@ namespace VisemoServices.Controllers
 
 
         [HttpGet("CheckUser")]
-        public async Task<IActionResult> CheckUser([FromQuery] string email)
+        public async Task<IActionResult> CheckUser([FromQuery] int userId)
         {
-            var user = await _userServices.CheckUser(email);
+            var user = await _userServices.CheckUser(userId);
 
             if (user == null)
             {
