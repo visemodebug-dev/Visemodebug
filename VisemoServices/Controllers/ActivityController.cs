@@ -108,6 +108,16 @@ namespace VisemoServices.Controllers
             bool hasSubmitted = await _activityService.GetStudentStatus(userId, activityId);
             return Ok(new { userId, activityId, hasSubmitted });
         }
+
+        [HttpGet("GetStudentCode")]
+        public async Task<IActionResult> GetCode(int userId, int activityId)
+        {
+            var code = await _activityService.GetCode(userId, activityId);
+            if (code == null)
+                return NotFound("No submitted code found for this student and activity.");
+
+            return Ok(new { Code = code });
+        }
     }
 }
 

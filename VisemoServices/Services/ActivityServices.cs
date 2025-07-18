@@ -157,6 +157,14 @@ namespace VisemoServices.Services
 
             return submission != null && !string.IsNullOrWhiteSpace(submission.code);
         }
+
+        public async Task<string?> GetCode(int userId, int activityId)
+        {
+            var submission = await _context.SubmittedActivities
+                .FirstOrDefaultAsync(sa => sa.UserId == userId && sa.ActivityId == activityId);
+
+            return submission?.code;
+        }
     }
 
 }
