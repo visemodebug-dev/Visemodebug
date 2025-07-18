@@ -11,7 +11,7 @@ using VisemoAlgorithm.Data;
 namespace VisemoAlgorithm.Migrations
 {
     [DbContext(typeof(VisemoAlgoDbContext))]
-    [Migration("20250718103957_CreatedPingSystemModels")]
+    [Migration("20250718131330_CreatedPingSystemModels")]
     partial class CreatedPingSystemModels
     {
         /// <inheritdoc />

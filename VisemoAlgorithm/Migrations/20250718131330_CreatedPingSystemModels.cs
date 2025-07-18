@@ -12,11 +12,6 @@ namespace VisemoAlgorithm.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "EmotionBatchNumber",
-                table: "PingLogs",
-                newName: "PingBatchIndex");
-
             migrationBuilder.CreateTable(
                 name: "ActivitySessions",
                 columns: table => new
@@ -32,6 +27,23 @@ namespace VisemoAlgorithm.Migrations
                     table.PrimaryKey("PK_ActivitySessions", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "PingLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ActivityId = table.Column<int>(type: "int", nullable: false),
+                    PingBatchIndex = table.Column<int>(type: "int", nullable: false),
+                    PingedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PingLogs", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
         }
 
         /// <inheritdoc />
@@ -40,10 +52,8 @@ namespace VisemoAlgorithm.Migrations
             migrationBuilder.DropTable(
                 name: "ActivitySessions");
 
-            migrationBuilder.RenameColumn(
-                name: "PingBatchIndex",
-                table: "PingLogs",
-                newName: "EmotionBatchNumber");
+            migrationBuilder.DropTable(
+                name: "PingLogs");
         }
     }
 }
