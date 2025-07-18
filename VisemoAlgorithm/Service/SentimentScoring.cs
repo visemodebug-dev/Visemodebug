@@ -51,22 +51,41 @@ namespace VisemoAlgorithm.Service
             double S = (a * Ē) + (b * E_final) + (c * B) - (γ * P);
             string interpretation = GetInterpretation(E_final, Ē, B, P);
 
-            var report = new SentimentReport
-            {
-                UserId = userId,
-                ActivityId = activityId,
-                SentimentScore = S,
-                FinalEmotionScore = E_final,
-                AverageEmotionScore = Ē,
-                BuildSuccessRate = B,
-                SelfAssessmentPenalty = P,
-                Interpretation = interpretation
-            };
+            // Check if a report already exists
+            var existingReport = await _context.SentimentReports
+                .FirstOrDefaultAsync(r => r.UserId == userId && r.ActivityId == activityId);
 
-            _context.SentimentReports.Add(report);
+            if (existingReport != null)
+            {
+                // Update existing report
+                existingReport.SentimentScore = S;
+                existingReport.FinalEmotionScore = E_final;
+                existingReport.AverageEmotionScore = Ē;
+                existingReport.BuildSuccessRate = B;
+                existingReport.SelfAssessmentPenalty = P;
+                existingReport.Interpretation = interpretation;
+            }
+            else
+            {
+                // Create new report
+                existingReport = new SentimentReport
+                {
+                    UserId = userId,
+                    ActivityId = activityId,
+                    SentimentScore = S,
+                    FinalEmotionScore = E_final,
+                    AverageEmotionScore = Ē,
+                    BuildSuccessRate = B,
+                    SelfAssessmentPenalty = P,
+                    Interpretation = interpretation
+                };
+
+                _context.SentimentReports.Add(existingReport);
+            }
+
             await _context.SaveChangesAsync();
 
-            return report;
+            return existingReport;
         }
 
         private string GetInterpretation(double final, double avg, double build, double penalty)

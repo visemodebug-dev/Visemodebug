@@ -87,9 +87,9 @@ export const getActivityById = async (activityId: number) => {
   return response.data;
 }
 
-export const startActivity = (activityId: number) =>
+export const startActivity = (activityId: number, userId: number) =>
   API.post(`/Activity/StartActivity`, null, {
-    params: { activityId },
+    params: { activityId , userId },
   });
 
   export const stopActivity = (activityId: number) =>
@@ -213,4 +213,68 @@ export const submitStudentCode = async ({
       },
     }
   );
+};
+
+export const fetchAggregatedEmotions = async (activityId: number) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token");
+
+  const response = await API.get(`/emotion/AggregateEmotions`, {
+    params: { activityId },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data; // { activityId, totalPositiveEmotions, totalNegativeEmotions, totalNeutralEmotions }
+};
+
+export const getClassroomUsers = async (id: number) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token");
+
+  const response = await API.get(`/Classroom/GetUser`, {
+    params: { id },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data; // array of users
+};
+
+export const fetchStudentStatus = async (activityId: number, userId: number) => {
+  const res = await API.get(`/emotion/GetEmotionsPerStudent`, {
+    params: { activityId, userId }
+  });
+  return res.data;
+};
+
+export const fetchSubmissionStatus = async (activityId: number, userId: number) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token");
+
+  const res = await API.get(`/Activity/GetStudentStatus`, {
+    params: { activityId, userId },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;  // { userId, activityId, hasSubmitted }
+};
+
+  export const getSubmittedCode = async (activityId: number, userId: number) => {
+  const res = await API.get("/Activity/GetStudentCode", {
+    params: { activityId, userId },
+  });
+  return res.data; // { code: "..." }
+};
+
+  export const getGenerateReport = async (activityId: number, userId: number) => {
+  const res = await API.post(
+    "/Activity/GenerateReport",
+    {}, // empty body
+    { params: { activityId, userId } } // query params
+  );
+  return res.data;
 };

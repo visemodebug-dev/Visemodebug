@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VisemoServices.Services;
 using VisemoServices.Dtos.Activity;
+using VisemoAlgorithm.Services;
 
 namespace VisemoServices.Controllers
 {
@@ -44,12 +45,13 @@ namespace VisemoServices.Controllers
         }
 
         [HttpPost("StartActivity")]
-        public async Task<IActionResult> StartActivity(int activityId)
+        public async Task<IActionResult> StartActivity([FromQuery] int activityId, [FromQuery] int userId)
         {
-            var result = await _activityService.StartActivity(activityId);
-            if (!result.Success) return BadRequest(new { message = result.Message });
+            var result = await _activityService.StartActivity(activityId, userId);
+            if (!result.Success)
+                return BadRequest(result.Message);
 
-            return Ok(new { message = result.Message });
+            return Ok(result.Message);
         }
 
         [HttpPost("StopActivity")]
@@ -102,5 +104,29 @@ namespace VisemoServices.Controllers
             }
         }
 
+        [HttpGet("GetStudentStatus")]
+        public async Task<IActionResult> GetStudentStatus([FromQuery] int userId, [FromQuery] int activityId)
+        {
+            bool hasSubmitted = await _activityService.GetStudentStatus(userId, activityId);
+            return Ok(new { userId, activityId, hasSubmitted });
+        }
+
+        [HttpGet("GetStudentCode")]
+        public async Task<IActionResult> GetCode(int userId, int activityId)
+        {
+            var code = await _activityService.GetCode(userId, activityId);
+            if (code == null)
+                return NotFound("No submitted code found for this student and activity.");
+
+            return Ok(new { Code = code });
+        }
+
+        [HttpGet("CheckPing")]
+        public async Task<IActionResult> CheckForPing([FromQuery] int userId, [FromQuery] int activityId)
+        {
+            var result = await _activityService.CheckForPing(userId, activityId);
+            return Ok(new { pinged = result });
+        }
     }
 }
+

@@ -113,7 +113,8 @@ namespace VisemoServices.Services
                 u.Email,
                 u.firstName,
                 u.lastName,
-                u.idNumber
+                u.idNumber,
+                u.role
             });
         }
         public async Task<(bool Success, string Message)> RemoveUserFromClassroomAsync(int classroomId, string idNumber)

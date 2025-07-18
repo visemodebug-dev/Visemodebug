@@ -14,6 +14,7 @@ import SetNewPassword from './components/loginauth/SetNewPassword';
 import StudentLandingPage from './components/dashboards/student_dash/StudentLandingPage';
 import TeacherLandingPage from './components/dashboards/teacher_dash/TeacherLandingPage';
 import CodeEditorPage from './components/dashboards/student_dash/ActivityPage/CodeEditorPage';
+import TeacherIde from './components/dashboards/teacher_dash/classroom/TeacherIde';
 
 function App() {
   return (
@@ -42,8 +43,8 @@ function App() {
     <Route path="/set-new-password" element={<SetNewPassword />} />
 
     {/* Teacher Dashboard */}
-    <Route path="/teacher-dashboard" element={<TeacherLandingPage />}>
-    </Route>
+    <Route path="/teacher-dashboard" element={<TeacherLandingPage />}/>
+    <Route path="/teacher-ide/:activityId/:userId" element={<TeacherIde />} />
 
     {/* Student Dashboard */}
     <Route path="/student-dashboard" element={<StudentLandingPage />} />
