@@ -149,6 +149,14 @@ namespace VisemoServices.Services
         {
             return await _sentimentScoringService.GenerateSentimentReport(userId, activityId);
         }
+
+        public async Task<bool> GetStudentStatus(int userId, int activityId)
+        {
+            var submission = await _context.SubmittedActivities
+                .FirstOrDefaultAsync(sa => sa.UserId == userId && sa.ActivityId == activityId);
+
+            return submission != null && !string.IsNullOrWhiteSpace(submission.code);
+        }
     }
 
 }

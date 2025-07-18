@@ -102,5 +102,12 @@ namespace VisemoServices.Controllers
             }
         }
 
+        [HttpGet("GetStudentStatus")]
+        public async Task<IActionResult> GetStudentStatus([FromQuery] int userId, [FromQuery] int activityId)
+        {
+            bool hasSubmitted = await _activityService.GetStudentStatus(userId, activityId);
+            return Ok(new { userId, activityId, hasSubmitted });
+        }
     }
 }
+

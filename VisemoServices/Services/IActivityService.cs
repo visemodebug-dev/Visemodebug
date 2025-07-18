@@ -16,6 +16,7 @@ namespace VisemoServices.Services
         Task<(bool Success, string Message)> SubmitBuild(bool isSuccessful, int userId, int activityId);
         Task<SubmittedActivities> SubmitStudentCode(string Code, int userId, int activityId);
         Task<SentimentReport> GenerateSentimentReport(int userId, int activityId);
+        Task<bool> GetStudentStatus(int userId, int activityId);
     }
 
 }
