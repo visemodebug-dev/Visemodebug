@@ -353,7 +353,7 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({
             </button>
 
             <div className="text-xl font-bold mb-4">
-              Interpretation for {selectedStudent?.firstName} {selectedStudent?.lastName}
+              Analysis of {selectedStudent?.firstName} {selectedStudent?.lastName}
             </div>
 
             {modalData.error ? (
