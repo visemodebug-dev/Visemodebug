@@ -4,8 +4,8 @@ using System.Xml.Linq;
 using VisemoAlgorithm.Data;
 using VisemoAlgorithm.Model;
 using VisemoAlgorithm.Service;
+using VisemoAlgorithm.Services;
 using VisemoServices.Data;
-using VisemoServices.Dtos.Activity;
 using VisemoServices.Model;
 
 namespace VisemoServices.Services
@@ -17,14 +17,16 @@ namespace VisemoServices.Services
         private readonly SelfAssessmentService _selfAssessmentService;
         private readonly CodeEditorServices _codeEditorServices;
         private readonly SentimentScoringService _sentimentScoringService;
+        private readonly PingService _pingService;
 
-        public ActivityService(DatabaseContext context, VisemoAlgoDbContext dbContext, SelfAssessmentService selfAssessmentService, CodeEditorServices codeEditorServices, SentimentScoringService sentimentScoringService)
+        public ActivityService(DatabaseContext context, VisemoAlgoDbContext dbContext, SelfAssessmentService selfAssessmentService, CodeEditorServices codeEditorServices, SentimentScoringService sentimentScoringService, PingService pingService)
         {
             _context = context;
             _dbContext = dbContext;
             _selfAssessmentService = selfAssessmentService;
             _codeEditorServices = codeEditorServices;
             _sentimentScoringService = sentimentScoringService;
+            _pingService = pingService;
         }
 
         public async Task<Activity> CreateActivityAsync(int classroomId, string name, TimeSpan timer, string instruction)
@@ -76,16 +78,26 @@ namespace VisemoServices.Services
             }
         }
 
-        public async Task<(bool Success, string Message)> StartActivity(int activityId)
+        public async Task<(bool Success, string Message)> StartActivity(int activityId, int userId)
         {
             var activity = await _context.Activities.FindAsync(activityId);
             if (activity == null) return (false, "Activity not found");
 
-            if (activity.IsStarted)
-                return (false, "Activity is already started");
+            if (activity.IsStarted) return (false, "Activity already started");
 
             activity.IsStarted = true;
             await _context.SaveChangesAsync();
+
+            // Save session to Algorithm DB
+            var session = new ActivitySession
+            {
+                ActivityId = activityId,
+                UserId = userId,
+                StartTime = DateTime.UtcNow
+            };
+
+            await _dbContext.ActivitySessions.AddAsync(session);
+            await _dbContext.SaveChangesAsync();
 
             return (true, "Activity started successfully");
         }
@@ -164,6 +176,11 @@ namespace VisemoServices.Services
                 .FirstOrDefaultAsync(sa => sa.UserId == userId && sa.ActivityId == activityId);
 
             return submission?.code;
+        }
+
+        public async Task<bool> CheckForPing(int userId, int activityId)
+        {
+            return await _pingService.CheckForPing(userId, activityId);
         }
     }
 

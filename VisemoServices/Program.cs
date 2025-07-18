@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using VisemoAlgorithm.Service;
 using VisemoAlgorithm.Data;
+using VisemoAlgorithm.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,6 +128,7 @@ builder.Services.AddScoped<SelfAssessmentService>();
 builder.Services.AddScoped<CodeEditorServices>();
 builder.Services.AddScoped<SentimentScoringService>();
 builder.Services.AddScoped<EmotionHandler>();
+builder.Services.AddScoped<PingService>();
 builder.Services.AddScoped<IAuthTokenService, AuthTokenService>();
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();

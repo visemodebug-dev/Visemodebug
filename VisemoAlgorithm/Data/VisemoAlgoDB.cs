@@ -12,7 +12,8 @@ namespace VisemoAlgorithm.Data
         public DbSet<BuildResult> BuildResults { get; set; }
         public DbSet<EmotionLog> EmotionLogs { get; set; }
         public DbSet<SentimentReport> SentimentReports { get; set; }
-
+        public DbSet<PingLog> PingLogs { get; set; }
+        public DbSet<ActivitySession> ActivitySessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

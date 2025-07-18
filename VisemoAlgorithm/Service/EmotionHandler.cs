@@ -48,5 +48,7 @@ namespace VisemoAlgorithm.Service
                 userEmotion.NeutralEmotions
             );
         }
+
+
     }
 }
