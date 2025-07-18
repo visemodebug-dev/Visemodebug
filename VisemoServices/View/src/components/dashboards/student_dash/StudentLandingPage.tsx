@@ -7,17 +7,6 @@ import { Classroom, Activity } from "../../../types/classroom";
 import ActivityDetails from "../teacher_dash/classroom/ActivityDetails";
 import ClassroomDetails from "../teacher_dash/pages/ClassroomDetails";
 
-interface User {
-  name: string;
-  role: "Student" | "Teacher";
-  avatarUrl?: string;
-}
-
-const user: User = {
-  name: "Carl Andre Interino",
-  role: "Student",
-  avatarUrl: "/path/to/avatar.jpg",
-};
 
 const StudentLandingPage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -81,7 +70,7 @@ const StudentLandingPage: React.FC = () => {
           ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}
         `}
       >
-        <Navbar user={user} logoText="VISEMO" />
+        <Navbar logoText="VISEMO" />
       </div>
 
       <div

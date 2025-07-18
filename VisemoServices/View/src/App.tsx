@@ -7,8 +7,6 @@ import TeacherSignUp from './components/loginauth/TeacherSignup';
 import TeacherLogin from './components/loginauth/TeacherLogin';
 import StudentSignUp from './components/loginauth/StudentSignup';
 import StudentLogin from './components/loginauth/StudentLogin';
-import AdminLogin from './components/loginauth/AdminLogin';
-import AdminSignUp from './components/loginauth/AdminSignup';
 import ForgotPassword from './components/loginauth/ForgotPassword';
 import SetNewPassword from './components/loginauth/SetNewPassword';
 import StudentLandingPage from './components/dashboards/student_dash/StudentLandingPage';
@@ -30,13 +28,10 @@ function App() {
     <Route path="/loginauth/student/login" element={<StudentLogin />} />
     <Route path="/loginauth/student/signup" element={<StudentSignUp />} />
 
-    <Route path="/loginauth/admin/login" element={<AdminLogin />} />
-    <Route path="/loginauth/admin/signup" element={<AdminSignUp />} />
 
     {/* Redirects */}
     <Route path="/loginauth/student/*" element={<Navigate to="/loginauth/student/login" replace />} />
     <Route path="/loginauth/teacher/*" element={<Navigate to="/loginauth/teacher/login" replace />} />
-    <Route path="/loginauth/admin/*" element={<Navigate to="/loginauth/admin/login" replace />} />
 
     {/* Forgot Password */}
     <Route path="/forgot-password" element={<ForgotPassword />} />
