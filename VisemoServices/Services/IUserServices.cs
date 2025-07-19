@@ -7,7 +7,7 @@ namespace VisemoServices.Services
     public interface IUserServices
     {
         Task<User?> Login(string email, string password);
-        Task<User> SignUp(UserSignupDto userDto, IFormFile idImage, IWebHostEnvironment env);
+        Task<User> SignUp(UserSignupDto userDto, IWebHostEnvironment env);
         Task<User?> CheckUser(int userId);
     }
 }

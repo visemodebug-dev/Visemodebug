@@ -24,8 +24,8 @@ namespace VisemoServices.Model
         [Required, MaxLength(50)]
         public string? idNumber { get; set; }
 
-        [Required, MaxLength(255)]
-        public string? idImage { get; set; }
+        //[Required, MaxLength(255)]
+        //public string? idImage { get; set; }
 
         [Required, MaxLength(10)]
         public string? role { get; set; }
