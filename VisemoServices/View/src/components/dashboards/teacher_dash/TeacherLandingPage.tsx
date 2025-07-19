@@ -87,7 +87,7 @@ const TeacherLandingPage: React.FC = () => {
           ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}
         `}
       >
-        <Navbar user={{ name: "Carl Andre Interino", role: "Teacher" }} logoText="VISEMO" />
+        <Navbar logoText="VISEMO" />
       </div>
 
       {/* Main Content */}

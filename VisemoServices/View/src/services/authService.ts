@@ -1,98 +1,109 @@
 import axios from "axios";
 
-// /**
-//  * Sends a password reset request to the server.
-//  * @param email - The user's email address.
-//  * @param idNumber - The user's ID number.
-//  * @returns A promise that resolves with the server's response.
-//  */
-
 const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7131/api/User";
-
 axios.defaults.timeout = 10000;
 
-// Sign Up
-export const submitAuthForm = async (formData: FormData) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/signup`, formData, {
-            headers: {
-                'Content-Type' : 'multipart/form-data'
-            }
-        });
-        
-        return response.data;
-    } catch (error: any) {
-        console.error("Error submitting form:", error);
-        throw new Error(error.response?.data?.message || "Signup failed.");
-    }
-};
-
-// Login Student
-export const loginStudent = async (email: string, password: string) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/login/student`, {email,password}, {
-            headers: {"Content-Type" : "application/json"}
-        });
-
-        if (response.status === 200) {
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("userId", response.data.userId || response.data.user.id);
-            return response.data;
-        } else {
-            throw new Error("Login Failed");
-        }
-    } catch (error: any) {
-        console.error("Error logging in:",error)
-        throw new Error(error.response?.data?.message || "Login failed.");
-    }
-};
-
-// Login Teacher
-export const loginTeacher = async (email: string, password: string) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/login/teacher`, {email,password}, {
-            headers: {"Content-Type" : "application/json"}
-        });
-
-        if (response.status === 200) {
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("userId", response.data.userId || response.data.user.id);
-            return response.data;
-        } else {
-            throw new Error("Login Failed");
-        }
-    } catch (error: any) {
-        console.error("Error logging in:",error)
-        throw new Error(error.response?.data?.message || "Login failed.");
-    }
-};
-
-// Forgot Password
-export const forgotPassword = async (email: string, idNumber: string) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/forgot-password`, {email, idNumber}, {
-            headers: {"Content-Type" : "application/json"},
-        });
-
-        return response.data;
-    } catch (error: any) {
-        console.error("Error sending password reset link", error);
-        throw new Error (error.response?.data?.message || "Failed to send reset link.")
-    }
-};
-
-// Reset Password
-export const resetPassword = async (password: string, token: string) => {
-    try {
-      const response = await axios.post(`${BASE_URL}/reset-password`, {
-        password,
-        token, // Backend needs this token to verify identity
-      },{
-        headers: {"Content-Type": "application/json"},
-      });
-  
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Password reset failed");
-    }
+// 🔷 Save user info properly
+const saveUserInfo = (user: any, token: string) => {
+  const userPayload = {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+    id: user.id,
   };
+
+  localStorage.setItem("user", JSON.stringify(userPayload));
+  localStorage.setItem("token", token);
+};
+
+export const submitAuthForm = async (formData: FormData) => {
+  try {
+    const res = await axios.post(`${BASE_URL}/signup`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  } catch (err: any) {
+    console.error("Error submitting form:", err);
+    throw new Error(err.response?.data?.message || "Signup failed.");
+  }
+};
+
+export const loginStudent = async (email: string, password: string) => {
+  try {
+    const res = await axios.post(
+      `${BASE_URL}/login/student`,
+      { email, password },
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    if (res.status === 200) {
+      saveUserInfo(res.data.user, res.data.token);
+      return res.data;
+    }
+    throw new Error("Login failed.");
+  } catch (err: any) {
+    console.error("Error logging in:", err);
+    throw new Error(err.response?.data?.message || "Login failed.");
+  }
+};
+
+export const loginTeacher = async (email: string, password: string) => {
+  try {
+    const res = await axios.post(
+      `${BASE_URL}/login/teacher`,
+      { email, password },
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    if (res.status === 200) {
+      saveUserInfo(res.data.user, res.data.token);
+      return res.data;
+    }
+    throw new Error("Login failed.");
+  } catch (err: any) {
+    console.error("Error logging in:", err);
+    throw new Error(err.response?.data?.message || "Login failed.");
+  }
+};
+
+export const forgotPassword = async (email: string, idNumber: string) => {
+  try {
+    const res = await axios.post(
+      `${BASE_URL}/forgot-password`,
+      { email, idNumber },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    return res.data;
+  } catch (err: any) {
+    console.error("Error sending reset link:", err);
+    throw new Error(err.response?.data?.message || "Failed to send reset link.");
+  }
+};
+
+export const resetPassword = async (password: string, token: string) => {
+  try {
+    const res = await axios.post(
+      `${BASE_URL}/reset-password`,
+      { password, token },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    return res.data;
+  } catch (err: any) {
+    console.error("Error resetting password:", err);
+    throw new Error(err.response?.data?.message || "Password reset failed.");
+  }
+};
+
+export const checkUser = async (userId: number) => {
+  try {
+    const res = await axios.get(`${BASE_URL}/CheckUser`, {
+      params: { userId },
+    });
+
+    if (res.status === 200) return res.data;
+    throw new Error("Failed to fetch user info.");
+  } catch (err: any) {
+    console.error("Error checking user:", err);
+    throw new Error(err.response?.data?.message || "Could not fetch user data.");
+  }
+};

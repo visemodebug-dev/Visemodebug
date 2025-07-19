@@ -9,7 +9,7 @@ import { loginStudent, loginTeacher , submitAuthForm } from "../../services/auth
 
 interface AuthFormProps {
   type: "login" | "signup";
-  role: "Student" | "Teacher" | "Admin";
+  role: "Student" | "Teacher";
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
@@ -50,10 +50,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
     Teacher: {
       login: "https://cdn.builder.io/api/v1/image/assets/TEMP/97ac33657fa7044fa2cbf542d66251fd44ac1060",
       signup: "https://cdn.builder.io/api/v1/image/assets/TEMP/2935d2db3c636340ed9447ae7f4e92782374777a",
-    },
-    Admin: {
-      login: "https://cdn.builder.io/api/v1/image/assets/TEMP/295b783d99dde77bcacee296a1896c97302f1fb2",
-      signup: "https://cdn.builder.io/api/v1/image/assets/TEMP/2556eeb27628d593bb03ca1dbbde7909d0f13c37",
     },
   }
 
@@ -138,9 +134,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, role }) => {
           navigate("/student-dashboard");
         } else if (role === "Teacher") {
           navigate("/teacher-dashboard");
-        } else if (role === "Admin") {
-          navigate("/admin-dashboard");
-        }  // Use the login service function
+        }
       } catch (error) {
         console.log("Login failed:", error);
         alert("Login failed. Please check your credentials.");
