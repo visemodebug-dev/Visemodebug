@@ -17,6 +17,14 @@ import {
   useTheme,
   ButtonBase,
   CircularProgress,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -50,34 +58,46 @@ const Navbar: React.FC<NavbarProps> = ({
   const [currentDate, setCurrentDate] = useState<string>("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null); // 🔷 anchor for menu dropdown
+  const [showLogoutModal, setShowLogoutModal] = useState(false);      // 🔷 modal state
+  const open = Boolean(anchorEl);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
 
   useEffect(() => {
-    const expectedRole = window.location.pathname.includes("teacher")
-      ? "Teacher"
-      : "Student";
-
     const savedUser = localStorage.getItem("user");
 
     if (!savedUser) {
       console.error("No user found in localStorage.");
       setLoading(false);
+      // 🚩 originally redirects to login
+      // navigate("/loginauth");
       return;
     }
 
     const parsedUser: User = JSON.parse(savedUser);
+    setUser(parsedUser);
 
-    if (parsedUser.role !== expectedRole) {
-      console.error(
-        `User role mismatch. Expected ${expectedRole} but got ${parsedUser.role}`
-      );
-      navigate("/unauthorized");
+    const isOnTeacherPage = window.location.pathname.includes("teacher");
+    const isOnStudentPage = window.location.pathname.includes("student");
+
+    // 🚩 Commented out role-enforcement logic for testing both roles
+    /*
+    if (isOnTeacherPage && parsedUser.role !== "Teacher") {
+      console.warn("Redirecting Student to their dashboard.");
+      navigate("/student-dashboard");
       return;
     }
 
-    setUser(parsedUser);
+    if (isOnStudentPage && parsedUser.role !== "Student") {
+      console.warn("Redirecting Teacher to their dashboard.");
+      navigate("/teacher-dashboard");
+      return;
+    }
+    */
+
     setLoading(false);
   }, [navigate]);
 
@@ -118,6 +138,24 @@ const Navbar: React.FC<NavbarProps> = ({
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget); // 🔷 open the dropdown menu
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear(); // 🔷 clear localStorage on logout
+    navigate("/");        // 🔷 redirect to landing
+  };
+
+  const confirmLogout = () => {
+    handleLogout();
+    setShowLogoutModal(false);
+  };
+
   const UserProfile = () => {
     if (loading) return <CircularProgress size={20} color="inherit" />;
     if (!user) return null;
@@ -126,25 +164,13 @@ const Navbar: React.FC<NavbarProps> = ({
       <Stack spacing={0} alignItems="flex-end">
         <Typography
           variant="body2"
-          sx={{
-            fontWeight: 700,
-            fontFamily: "'Inter-Bold', Helvetica",
-            fontSize: "14px",
-            color: "#fff",
-            lineHeight: 1.2,
-          }}
+          sx={{ fontWeight: 700, fontSize: "14px", color: "#fff", lineHeight: 1.2 }}
         >
           {user.firstName} {user.lastName}
         </Typography>
         <Typography
           variant="body2"
-          sx={{
-            fontWeight: 500,
-            fontFamily: "'Inter-Medium', Helvetica",
-            fontSize: "12px",
-            color: "#fff",
-            lineHeight: 1.2,
-          }}
+          sx={{ fontWeight: 500, fontSize: "12px", color: "#fff", lineHeight: 1.2 }}
         >
           {user.role}
         </Typography>
@@ -153,21 +179,9 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const SidebarContent = () => (
-    <Box
-      sx={{
-        width: 250,
-        bgcolor: "#1e5631",
-        height: "100%",
-        color: "white",
-      }}
-    >
+    <Box sx={{ width: 250, bgcolor: "#1e5631", height: "100%", color: "white" }}>
       <Box
-        sx={{
-          p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
+        sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}
       >
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           {logoText}
@@ -191,19 +205,12 @@ const Navbar: React.FC<NavbarProps> = ({
                 textAlign: "left",
                 py: 1,
                 px: 2,
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                },
+                "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
               }}
             >
               <ListItemText
                 primary={item.label}
-                sx={{
-                  "& .MuiTypography-root": {
-                    fontWeight: 500,
-                    color: "white",
-                  },
-                }}
+                sx={{ "& .MuiTypography-root": { fontWeight: 500, color: "white" } }}
               />
             </ButtonBase>
           </ListItem>
@@ -220,14 +227,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      <AppBar
-        position="static"
-        sx={{
-          bgcolor: "#1e5631",
-          height: "64px",
-          justifyContent: "center",
-        }}
-      >
+      <AppBar position="static" sx={{ bgcolor: "#1e5631", height: "64px", justifyContent: "center" }}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
           {isMobile ? (
             <>
@@ -240,15 +240,7 @@ const Navbar: React.FC<NavbarProps> = ({
             </>
           ) : (
             <>
-              <Typography
-                variant="h6"
-                component="div"
-                sx={{
-                  fontWeight: 700,
-                  fontFamily: "'Inter-Bold', Helvetica",
-                  ml: "20px",
-                }}
-              >
+              <Typography variant="h6" sx={{ fontWeight: 700, ml: "20px" }}>
                 {logoText}
               </Typography>
 
@@ -268,7 +260,6 @@ const Navbar: React.FC<NavbarProps> = ({
                     onClick={() => handleNavigation(item.label)}
                     sx={{
                       fontWeight: 600,
-                      fontFamily: "'Inter-SemiBold', Helvetica",
                       cursor: "pointer",
                       "&:hover": { opacity: 0.8 },
                       transition: "opacity 0.2s",
@@ -279,28 +270,32 @@ const Navbar: React.FC<NavbarProps> = ({
                 ))}
               </Stack>
 
-              <Stack
-                direction="row"
-                spacing={2}
-                alignItems="center"
-                sx={{ mr: "16px" }}
-              >
+              <Stack direction="row" spacing={2} alignItems="center" sx={{ mr: "16px" }}>
                 <Typography
                   variant="body2"
-                  sx={{
-                    fontWeight: 700,
-                    fontFamily: "'Inter-Bold', Helvetica",
-                    color: "#fff",
-                  }}
+                  sx={{ fontWeight: 700, color: "#fff" }}
                 >
                   {currentDate}
                 </Typography>
 
                 <UserProfile />
 
-                <IconButton color="inherit" edge="end">
+                <IconButton color="inherit" onClick={handleMenuClick}>
                   <KeyboardArrowDownIcon />
                 </IconButton>
+
+                {/* 🔷 Dropdown Menu for Logout */}
+                <Menu
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                >
+                  <MenuItem onClick={() => { handleMenuClose(); setShowLogoutModal(true); }}>
+                    Logout
+                  </MenuItem>
+                </Menu>
               </Stack>
             </>
           )}
@@ -310,6 +305,27 @@ const Navbar: React.FC<NavbarProps> = ({
       <Drawer anchor="left" open={isSidebarOpen} onClose={toggleSidebar}>
         <SidebarContent />
       </Drawer>
+
+      {/* 🔷 Logout Confirmation Modal */}
+      <Dialog
+        open={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+      >
+        <DialogTitle>Confirm Logout</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to logout?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowLogoutModal(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={confirmLogout} color="error">
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
