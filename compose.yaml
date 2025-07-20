@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   server:
     build:
@@ -9,15 +11,15 @@ services:
       db:
         condition: service_healthy
     environment:
-      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=VisemoDb;User=root;Password=my-secret-pw;
-      - ConnectionStrings__AlgoDbConnection=Server=db;Port=3306;Database=VisemoAlgoDb;User=root;Password=my-secret-pw;
+      - ConnectionStrings__DefaultConnection=Server=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};User=${DB_USER};Password=${DB_PASSWORD};
+      - ConnectionStrings__AlgoDbConnection=Server=${DB_HOST};Port=${DB_PORT};Database=${ALGO_DB_NAME};User=${DB_USER};Password=${DB_PASSWORD};
 
   db:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: my-secret-pw
-      MYSQL_DATABASE: VisemoDb
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
     ports:
       - 3307:3306
     volumes:
