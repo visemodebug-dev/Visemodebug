@@ -1,0 +1,33 @@
+services:
+  server:
+    build:
+      context: .
+      target: final
+    ports:
+      - 8081:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=VisemoDb;User=root;Password=my-secret-pw;
+      - ConnectionStrings__AlgoDbConnection=Server=db;Port=3306;Database=VisemoAlgoDb;User=root;Password=my-secret-pw;
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: VisemoDb
+    ports:
+      - 3307:3306
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  db-data:

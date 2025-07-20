@@ -17,6 +17,18 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Update="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+
+		<Content Remove="appsettings.json" />
+		<Content Remove="appsettings.Development.json" />
+	</ItemGroup>
+	
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="View\" />
