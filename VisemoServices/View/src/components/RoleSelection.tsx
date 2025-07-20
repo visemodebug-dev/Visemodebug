@@ -26,14 +26,6 @@ const RoleSelection: React.FC = () => {
             imageClassName="w-[113px] h-[172px]"
             link="/loginauth/student"
           />
-
-          <RoleCard
-            imageUrl="https://cdn.builder.io/api/v1/image/assets/TEMP/8a71b526a981ae2c82f08f73366197885c993881"
-            altText="Admin illustration"
-            role="Admin"
-            imageClassName="w-[191px] h-[166px]"
-            link="/loginauth/admin"
-          />
         </div>
       </div>
     </section>

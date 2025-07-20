@@ -3,7 +3,11 @@
 import React, { useState } from "react";
 import Typography from '@mui/material/Typography';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onLoginClick?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -13,37 +17,22 @@ const Header: React.FC = () => {
   return (
     <header className="flex flex-col items-center">
       <nav className="flex justify-between items-center px-32 w-full border border-zinc-400 h-95px max-w-1200px max-md:px-16 max-sm:px-5 p-5">
-          <Typography
-            variant="h6"
-            component="a"
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            sx={{ flexGrow: 1, color: '#F18701', fontWeight: 'bold', fontSize: '20px', textDecoration: 'none' }}
-          >
-            VISEMO
-          </Typography>
+        <Typography
+          variant="h6"
+          component="a"
+          href="#"
+          onClick={(e) => e.preventDefault()}
+          sx={{ flexGrow: 1, color: '#F18701', fontWeight: 'bold', fontSize: '20px', textDecoration: 'none' }}
+        >
+          VISEMO
+        </Typography>
+
         <ul className="flex gap-5 items-center max-md:hidden">
-          <li>
-          <button className="text-sm font-semibold leading-6 text-zinc-900">
-            Home
-          </button>
-          </li>
-          <li>
-            <button
-              className="text-sm font-semibold leading-6 text-zinc-900"
-            >
-              Features
-              </button>
-          </li>
-          <li>
-            <button
-              className="text-sm font-semibold leading-6 text-zinc-900"
-            >
-              About Us
-            </button>
-          </li>
           <li className="flex gap-5 items-center">
-            <button className="px-4 py-2 text-sm font-semibold leading-6 bg-yellow-400 rounded-2xl text-stone-950">
+            <button
+              onClick={onLoginClick}
+              className="px-4 py-2 text-sm font-semibold leading-6 bg-yellow-400 rounded-2xl text-stone-950"
+            >
               Login
             </button>
           </li>
@@ -63,10 +52,10 @@ const Header: React.FC = () => {
             stroke="currentColor"
             fill="none"
           >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M4 6l16 0"></path>
-            <path d="M4 12l16 0"></path>
-            <path d="M4 18l16 0"></path>
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M4 6l16 0" />
+            <path d="M4 12l16 0" />
+            <path d="M4 18l16 0" />
           </svg>
         </button>
 
@@ -75,27 +64,12 @@ const Header: React.FC = () => {
             <ul className="flex flex-col items-center py-4">
               <li className="py-2">
                 <button
-                  className="text-sm font-semibold leading-6 text-zinc-900"
+                  onClick={() => {
+                    onLoginClick?.();
+                    setIsMenuOpen(false);
+                  }}
+                  className="px-4 py-2 text-sm font-semibold leading-6 bg-yellow-400 rounded-2xl text-stone-950"
                 >
-                  Home
-                </button>
-              </li>
-              <li className="py-2">
-                <button
-                  className="text-sm font-semibold leading-6 text-zinc-900"
-                >
-                  Features
-                </button>
-              </li>
-              <li className="py-2">
-                <button
-                  className="text-sm font-semibold leading-6 text-zinc-900"
-                >
-                  About Us
-                </button>
-              </li>
-              <li className="py-2">
-                <button className="px-4 py-2 text-sm font-semibold leading-6 bg-yellow-400 rounded-2xl text-stone-950">
                   Login
                 </button>
               </li>

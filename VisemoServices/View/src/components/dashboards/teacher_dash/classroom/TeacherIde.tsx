@@ -55,7 +55,7 @@ const TeacherIde: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-gray-900">
-      <Navbar user={{ name: "Teacher Name", role: "Teacher" }} logoText="VISEMO" />
+      <Navbar logoText="VISEMO" />
 
       <div className="flex-1">
         <CodeEditor

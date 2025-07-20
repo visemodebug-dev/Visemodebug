@@ -25,12 +25,12 @@ namespace VisemoServices.Services
             return user;
         }
 
-        public async Task<User?> CheckUser(string email)
+        public async Task<User?> CheckUser(int userId)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
 
-        public async Task<User> SignUp(UserSignupDto dto, IFormFile idImage, IWebHostEnvironment env)
+        public async Task<User> SignUp(UserSignupDto dto, IWebHostEnvironment env)
         {
             // Check for existing user
             if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
@@ -38,22 +38,22 @@ namespace VisemoServices.Services
                 throw new Exception("User already exists");
             }
 
-            // Upload image
-            if (idImage == null || idImage.Length == 0)
-            {
-                throw new ArgumentException("ID image is required.");
-            }
+            //// Upload image
+            //if (idImage == null || idImage.Length == 0)
+            //{
+            //    throw new ArgumentException("ID image is required.");
+            //}
 
-            var uploadsFolder = Path.Combine(env.WebRootPath ?? "wwwroot", "uploads");
-            Directory.CreateDirectory(uploadsFolder);
+            //var uploadsFolder = Path.Combine(env.WebRootPath ?? "wwwroot", "uploads");
+            //Directory.CreateDirectory(uploadsFolder);
 
-            var fileName = $"{Guid.NewGuid()}_{idImage.FileName}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
+            //var fileName = $"{Guid.NewGuid()}_{idImage.FileName}";
+            //var filePath = Path.Combine(uploadsFolder, fileName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await idImage.CopyToAsync(stream);
-            }
+            //using (var stream = new FileStream(filePath, FileMode.Create))
+            //{
+            //    await idImage.CopyToAsync(stream);
+            //}
 
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
@@ -65,7 +65,7 @@ namespace VisemoServices.Services
                 lastName = dto.LastName,
                 middleInitial = dto.MiddleInitial,
                 idNumber = dto.IdNumber,
-                idImage = Path.Combine("uploads", fileName),
+                //idImage = Path.Combine("uploads", fileName),
                 role = dto.Role
             };
 

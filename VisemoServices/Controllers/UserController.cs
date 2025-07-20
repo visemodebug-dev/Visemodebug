@@ -26,7 +26,7 @@ namespace VisemoServices.Controllers
         {
             try
             {
-                var newUser = await _userServices.SignUp(userDto, userDto.IdImage, _env);
+                var newUser = await _userServices.SignUp(userDto, _env);
                 return Ok(newUser);
             }
             catch (Exception ex)
@@ -57,7 +57,7 @@ namespace VisemoServices.Controllers
                     user.lastName,
                     user.middleInitial,
                     user.idNumber,
-                    user.idImage,
+                    //user.idImage,
                     user.role
                 }
             });
@@ -85,7 +85,7 @@ namespace VisemoServices.Controllers
                     user.lastName,
                     user.middleInitial,
                     user.idNumber,
-                    user.idImage,
+                    //user.idImage,
                     user.role
                 }
             });
@@ -95,9 +95,9 @@ namespace VisemoServices.Controllers
 
 
         [HttpGet("CheckUser")]
-        public async Task<IActionResult> CheckUser([FromQuery] string email)
+        public async Task<IActionResult> CheckUser([FromQuery] int userId)
         {
-            var user = await _userServices.CheckUser(email);
+            var user = await _userServices.CheckUser(userId);
 
             if (user == null)
             {

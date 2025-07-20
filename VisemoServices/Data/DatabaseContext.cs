@@ -47,9 +47,9 @@ namespace VisemoServices.Data
                       .IsRequired()
                       .HasMaxLength(50);
 
-                entity.Property(u => u.idImage)
-                      .IsRequired()
-                      .HasMaxLength(255); // Stores filename or path
+                //entity.Property(u => u.idImage)
+                //      .IsRequired()
+                //      .HasMaxLength(255); // Stores filename or path
             });
         }
     }
