@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../Navbar";
 import ClassRoomGrid from "../teacher_dash/ClassRoomGrid";
@@ -6,7 +6,6 @@ import { getClassrooms } from "../../../api/classroomApi";
 import { Classroom, Activity } from "../../../types/classroom";
 import ActivityDetails from "../teacher_dash/classroom/ActivityDetails";
 import ClassroomDetails from "../teacher_dash/pages/ClassroomDetails";
-
 
 const StudentLandingPage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -20,8 +19,10 @@ const StudentLandingPage: React.FC = () => {
       const currentScrollY = window.scrollY;
 
       if (currentScrollY > lastScrollY) {
+        // scrolling down
         setIsVisible(false);
       } else {
+        // scrolling up
         setIsVisible(true);
       }
 
@@ -29,10 +30,7 @@ const StudentLandingPage: React.FC = () => {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
   useEffect(() => {
@@ -63,23 +61,17 @@ const StudentLandingPage: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col">
+      {/* 🔷 Sticky + Hide on Scroll Navbar */}
       <div
-        className={`
-          transition-all duration-300 ease-in-out
-          ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}
-        `}
+        className={`sticky top-0 z-50 transform transition-transform duration-300 ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
       >
         <Navbar logoText="VISEMO" />
       </div>
 
-      <div
-        className={`
-          flex-1 bg-green-500 overflow-auto
-          transition-all duration-300
-          ${isVisible ? "mt-0" : "-mt-16"}
-        `}
-      >
+      <div className="flex-1 bg-green-500 overflow-auto">
         {selectedClass === null && (
           <ClassRoomGrid
             classRooms={classrooms}
@@ -88,25 +80,27 @@ const StudentLandingPage: React.FC = () => {
           />
         )}
 
-
-           {selectedClass && !selectedActivity && (
+        {selectedClass && !selectedActivity && (
           <ClassroomDetails
             classroomId={selectedClass.id as number}
             onBack={handleBackToClasses}
             role="Student"
           />
         )}
-          </div>
-        
 
         {selectedActivity && (
           <div className="p-4">
-            <ActivityDetails activity={selectedActivity} onBack={handleBackToActivities} role="Student"/>
+            <ActivityDetails
+              activity={selectedActivity}
+              onBack={handleBackToActivities}
+              role="Student"
+            />
           </div>
         )}
 
         <Outlet />
       </div>
+    </div>
   );
 };
 

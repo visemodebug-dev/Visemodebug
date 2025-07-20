@@ -185,7 +185,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           method: "POST",
           headers: {
             "content-type": "application/json",
-            "X-RapidAPI-Key": "your-api-key",
+            "X-RapidAPI-Key": "04bbcf18ecmsh2ef5d6c16bb95bdp180920jsn4bfff42108cb",
             "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
           },
           body: JSON.stringify({
@@ -199,13 +199,19 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
       const result = await response.json();
 
-      if (result.stdout) {
-        isSuccessful = true;
-        setOutput(atob(result.stdout));
-      } else {
-        isSuccessful = false;
-        setError(result.status?.description || "Error occurred");
-      }
+     if (result.stdout) {
+          isSuccessful = true;
+          setOutput(atob(result.stdout));
+        } else if (result.stderr) {
+          isSuccessful = false;
+          setError(atob(result.stderr));
+        } else if (result.compile_output) {
+          isSuccessful = false;
+          setError(atob(result.compile_output));
+        } else {
+          isSuccessful = false;
+          setError(result.status?.description || "Unknown error occurred.");
+        }
 
       const userId = Number(localStorage.getItem("userId"));
       if (!userId || !activityId) return;
@@ -301,7 +307,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         </div>
       )}
 
-      <div className="grid grid-cols-[2fr,1fr] h-[calc(100vh-64px)]">
+      <div className="grid grid-cols-[2fr,1fr] h-[calc(100vh-64px-48px)]">
         <div className="h-full border-r border-[#2d2d2d]">
           <Editor
             height="100%"
