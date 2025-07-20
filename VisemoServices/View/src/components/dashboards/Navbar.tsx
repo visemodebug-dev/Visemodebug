@@ -73,7 +73,7 @@ const Navbar: React.FC<NavbarProps> = ({
       console.error("No user found in localStorage.");
       setLoading(false);
       // 🚩 originally redirects to login
-      // navigate("/loginauth");
+      navigate("/loginauth");
       return;
     }
 
@@ -84,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({
     const isOnStudentPage = window.location.pathname.includes("student");
 
     // 🚩 Commented out role-enforcement logic for testing both roles
-    /*
+    
     if (isOnTeacherPage && parsedUser.role !== "Teacher") {
       console.warn("Redirecting Student to their dashboard.");
       navigate("/student-dashboard");
@@ -96,7 +96,7 @@ const Navbar: React.FC<NavbarProps> = ({
       navigate("/teacher-dashboard");
       return;
     }
-    */
+    
 
     setLoading(false);
   }, [navigate]);
@@ -139,7 +139,7 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget); // 🔷 open the dropdown menu
+    setAnchorEl(event.currentTarget); 
   };
 
   const handleMenuClose = () => {
@@ -147,8 +147,8 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleLogout = () => {
-    localStorage.clear(); // 🔷 clear localStorage on logout
-    navigate("/");        // 🔷 redirect to landing
+    localStorage.clear(); 
+    navigate("/");        
   };
 
   const confirmLogout = () => {
