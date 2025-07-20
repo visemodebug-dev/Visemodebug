@@ -6,19 +6,26 @@ import { useCamera } from "../CameraContext";
 
 const CodeEditorPage: React.FC = () => {
   const location = useLocation();
-  const { activityId} = location.state || {};
-  
+  const { activityId } = location.state || {};
   const { streamRef } = useCamera();
 
   if (!activityId) {
-    return <div className="text-center text-white p-8">⚠️ No activity ID provided.</div>;
+    return (
+      <div className="text-center text-white p-8">
+        ⚠️ No activity ID provided.
+      </div>
+    );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-900">
-      <Navbar logoText="VISEMO" />
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Navbar fixed at top */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Navbar />
+      </div>
 
-      <div className="flex-1">
+      {/* Content below navbar */}
+      <div className="flex-1 bg-gray-900 text-white pt-16 overflow-hidden">
         <CodeEditor
           activityId={activityId}
           isCapturing={true}

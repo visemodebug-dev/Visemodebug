@@ -14,6 +14,7 @@ const saveUserInfo = (user: any, token: string) => {
 
   localStorage.setItem("user", JSON.stringify(userPayload));
   localStorage.setItem("token", token);
+  localStorage.setItem("userId", String(user.id));
 };
 
 export const submitAuthForm = async (formData: FormData) => {
